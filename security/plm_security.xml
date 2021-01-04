@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+<data noupdate="0">
+    <record id="group_mrp_plm_user" model="res.groups">
+        <field name="name">User</field>
+        <field name="category_id" />
+    </record>
+     
+
+</data>
+
+</odoo>

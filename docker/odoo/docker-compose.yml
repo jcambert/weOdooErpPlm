@@ -1,0 +1,63 @@
+#\\wsl$\docker-desktop-data\version-pack-data\community\docker\volumes
+version: '3.8'
+services:
+  erp:
+    container_name: odoo_erp_web
+    image: odoo:14.0
+    
+    depends_on:
+      - db_erp
+    ports:
+      - "8069:8069"
+    networks: 
+      - odoo
+    environment:
+      - HOST=db_erp
+      - USER=odoo
+      - PASSWORD=odoo
+      
+    volumes:
+      - odoo-web-data:/var/lib/odoo
+      - odoo-web-config:/etc/odoo
+      - odoo-web-addons:/mnt/extra-addons
+      - odoo-web-src:/usr/lib/python3/dist-packages/odoo
+  db_erp:
+    container_name: odoo_erp_db
+    image: postgres:latest
+    environment:
+      - POSTGRES_DB=postgres
+      - POSTGRES_PASSWORD=odoo
+      - POSTGRES_USER=odoo
+      - PGDATA=/var/lib/postgresql/data/pgdata
+    ports:
+      - "5433:5432"
+    networks: 
+      - odoo
+    volumes:
+      - odoo-db-data:/var/lib/postgresql/data/pgdata
+    restart: always
+  db_erp_admin:
+    container_name: postgres_admin
+    image: dpage/pgadmin4
+    environment: 
+      - PGADMIN_DEFAULT_EMAIL=jc.ambert@free.fr
+      - PGADMIN_DEFAULT_PASSWORD=12345678
+    ports: 
+      - "5050:80"
+    depends_on: 
+      - db_erp
+    networks: 
+      - odoo 
+      - local
+    restart: always
+
+volumes:
+  odoo-web-data:
+  odoo-db-data:
+  odoo-web-config:
+  odoo-web-addons:
+  odoo-web-src:
+networks: 
+  odoo:
+    driver: bridge
+  local:

@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <menuitem id="menu_mrp_plm_root"
+        name="PLM"
+        sequence="36"/>
+    
+    <menuitem id="menu_mrp_plm_configuration"
+    parent="menu_mrp_plm_root"
+    name="Configuration"
+    sequence="100"/>    
+</odoo>

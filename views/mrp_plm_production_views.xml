@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+        <record id="mrp_plm_production_action" model="ir.actions.act_window">
+            <field name="name">Manufacturing Orders</field>
+            <field name="type">ir.actions.act_window</field>
+            <field name="res_model">mrp.production</field>
+            <field name="view_mode">tree,kanban,form,calendar,pivot,graph</field>
+            <field name="view_id" eval="False"/>
+            <field name="search_view_id" ref="mrp.view_mrp_production_filter"/>
+            <field name="context">{'search_default_todo': True, 'default_company_id': allowed_company_ids[0]}</field>
+            <field name="domain">[('picking_type_id.active', '=', True)]</field>
+            <field name="help" type="html">
+              <p class="o_view_nocontent_smiling_face">
+                No manufacturing order found. Let's create one.
+              </p><p>
+                Consume <a name="%(product.product_template_action)d" type='action' tabindex="-1">components</a> and build finished products using <a name="%(mrp.mrp_bom_form_action)d" type='action' tabindex="-1">bills of materials</a>
+              </p>
+            </field>
+        </record>
+        <menuitem action="mrp_plm_production_action"
+            id="menu_mrp_plm_production_action"
+            parent="menu_mrp_plm_configuration"
+            sequence="1"/>
+    </data>
+</odoo>
