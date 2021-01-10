@@ -2,7 +2,7 @@
 <odoo>
     <menuitem id="menu_mrp_plm_root"
         name="PLM"
-        sequence="36"/>
+        sequence="1"/>
     
     <menuitem id="menu_mrp_plm_configuration"
     parent="menu_mrp_plm_root"

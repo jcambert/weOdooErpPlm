@@ -18,17 +18,15 @@
     'category': 'Productivity',
     'version': '1.0',
     # any module necessary for this one to work correctly
-    'depends': ['mrp','base','product', 'mail', 'uom','mrp'],
+    #'depends': ['mrp','base','product', 'mail', 'uom','mrp'],
 
     # always loaded
     'data': [
-        #'security/plm_security.xml',
-        # 'security/ir.model.access.csv',
+        'security/plm_security.xml',
+        'security/ir.model.access.csv',
         'views/mrp_plm_views_menu.xml',
-        'views/mrp_plm_views.xml',
-        #'views/mrp_plm_production_views.xml',
-        'views/product_views.xml',
-        #'views/templates.xml',
+        'views/mrp_plm_views.xml'
+        #'views/product_views.xml',
     ],
     # only loaded in demonstration mode
     'demo': [
