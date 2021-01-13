@@ -1,0 +1,22 @@
+{
+    // Utilisez IntelliSense pour en savoir plus sur les attributs possibles.
+    // Pointez pour afficher la description des attributs existants.
+    // Pour plus d'informations, visitez : https://go.microsoft.com/fwlink/?linkid=830387
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "Odoo 14 Community",
+            "type": "python",
+            "request": "launch",
+            //"program": "${file}",
+            "program": "${workspaceRoot}/odoo-bin",
+            "args": [
+                "--config=${workspaceRoot}/odoo.conf"
+            ],
+            "cwd": "${workspaceRoot}",
+            "env": {},
+            "envFile": "${workspaceRoot}/.env",
+            "console": "integratedTerminal"
+        }
+    ]
+}

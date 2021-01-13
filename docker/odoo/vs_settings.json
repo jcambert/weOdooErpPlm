@@ -1,0 +1,19 @@
+{
+    "python.pythonPath": "/usr/bin/python3",
+    "python.autoComplete.extraPaths": [
+        "${workspaceRoot}/odoo/addons",
+        "${workspaceRoot}/odoo",
+        "${workspaceRoot}/odoo/extra-addons" 
+    ],
+    "python.linting.enabled": true,
+    "files.autoSave": "afterDelay",
+    "files.autoSaveDelay": 1000,
+    "files.exclude": {
+        "**/.git": true,
+        "**/.svn": true,
+        "**/.hg": true,
+        "**/CVS": true,
+        "**/.DS_Store": true,
+        "**/.pyc":true
+    }
+}
