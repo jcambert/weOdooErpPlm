@@ -1,9 +1,9 @@
-#. module: weaddon
-#: model:ir.model.fields,field_description:weaddon.field_product_template__valtec
+#. module: weOdooErpPlm
+#: model:ir.model.fields,field_description:weOdooErpPlm.field_product_template__valtec
 msgid "If unchecked, it will allow you to disable launch manufacturing"
 msgstr "En décochant cette case, il sera impossible de créer un ordre de fabrication"
 
-#. module: weaddon
-#: model_terms:ir.ui.view,arch_db:weaddon.weaddon_product_form_view
+#. module: weOdooErpPlm
+#: model_terms:ir.ui.view,arch_db:weOdooErpPlm.weaddon_product_form_view
 msgid "Technical valid"
 msgstr "Validation Technique" 

@@ -2,7 +2,6 @@
 
 from odoo import models, fields, api
 class WeAddonProduct(models.Model):
-#   _name = 'weaddon.product'
     _inherit = ['product.template']
     _description = 'Product Erp extensions'
     # valtec = fields.Boolean( default=True, help="If unchecked, it will allow you to disable launch manufacturing")
