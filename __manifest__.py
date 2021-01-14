@@ -18,7 +18,7 @@
     'category': 'Productivity',
     'version': '1.0',
     # any module necessary for this one to work correctly
-    #'depends': ['mrp','base','product', 'mail', 'uom','mrp'],
+    'depends': ['mrp','base','product', 'mail', 'uom'],
 
     # always loaded
     'data': [
@@ -26,8 +26,11 @@
         'security/ir.model.access.csv',
         'views/mrp_plm_views_menu.xml',
         'views/mrp_plm_views.xml'
-        #'views/product_views.xml',
+        'views/product_views.xml',
+        'report/plm_report_views_main.xml',
+        'report/plm_production_templates.xml'
     ],
+    'qweb': ['static/src/xml/*.xml'],
     # only loaded in demonstration mode
     'demo': [
      #   'demo/demo.xml',

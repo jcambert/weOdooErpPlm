@@ -1,4 +1,4 @@
-# from . import product
+from . import product
 # from . import plm_tag
 from . import plm_sequence
 from . import plm_type
