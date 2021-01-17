@@ -1,42 +1,82 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
-    <template id="report_plm_order" inherit_id="report_mrporder">
+    <template id="report_plm_order" inherit_id="mrp.report_mrporder">
+        <xpath expr="//div[@class='page']/h3[1]" position="replace"></xpath>
+        <xpath expr="//div[@class='page']/table[1]" position="replace"></xpath>
         <xpath expr="//div[@class='page']/div[5]" position="replace">
-            <h3>
-                <span t-if="o.state == 'done'">Operations Done</span>
-                <span t-else="">Operations Planned</span>
-            </h3>
             <table class="table table-sm">
-                <tr>
-                    <th>
-                        <strong>Operation</strong>
-                    </th>
-                    <th>
-                        <strong>WorkCenter</strong>
-                    </th>
-                    <th>
-                        <strong>No. Of Minutes</strong>
-                    </th>
-                    <th>
-                        <strong>Hacked</strong>
-                    </th>
-                </tr>
-                <tr t-foreach="o.workorder_ids" t-as="line2">
-                    <td>
-                        <span t-field="line2.name"/>
-                    </td>
-                    <td>
-                        <span t-field="line2.workcenter_id.name"/>
-                    </td>
-                    <td>
-                        <span t-if="o.state != 'done'" t-field="line2.duration_expected"/>
-                        <span t-if="o.state == 'done'" t-field="line2.duration"/>
-                    </td>
-                    <td>
-                        <span>HACKED</span>
-                    </td>
-                </tr>
+                <thead class="thead-dark">
+                    <tr>
+                        <th width="15%">
+                            <strong>Sequence</strong>
+                        </th>
+                        <th width="auto">
+                            <strong>Poste</strong>
+                        </th>
+                        <th width="15%">
+                            <strong>No. Of Minutes</strong>
+                        </th>
+
+                    </tr>
+                </thead>
+                <tbody>
+                    <t t-foreach="o.workorder_ids" t-as="order">
+                        <tr >
+                            <td>
+                                <span t-field="order.name"/>
+                            </td>
+                            <td>
+                                <span t-field="order.workcenter_id.name"/>
+                            </td>
+                            <td>
+                                <span t-if="o.state != 'done'" t-field="order.duration_expected"/>
+                                <span t-if="o.state == 'done'" t-field="order.duration"/>
+                            </td>
+                        </tr>
+                        <t t-foreach="order.operation_id" t-as="operation">
+                            <tr>
+                                <td width="15%">
+                                </td>
+                                <td colspan="2" width="auto" >
+                                    <span t-field="operation.note"></span>
+                                </td>
+                            </tr>
+                            <t t-if="order.move_raw_ids">
+                                <tr t-foreach="order.move_raw_ids" t-as="nome">
+                                    <td width="15%"></td>
+                                    <td colspan="2" width="auto">
+                                        <table width="100%">
+                                            <tbody>
+                                                <tr t-if="nome.is_done==False">
+                                                    <td width="auto">
+                                                        <p>
+                                                            <del>
+                                                                <span t-field="nome.product_id"/>
+                                                            </del>
+                                                        </p>
+                                                    </td>
+                                                    <td width="20%">
+                                                        <p>
+                                                            <del>
+                                                                <span t-field="nome.product_uom_qty"/>
+                                                                <span t-field="nome.product_uom" groups="uom.group_uom"/>
+                                                            </del>
+                                                        </p>
+                                                    </td>
+                                                </tr>
+                                            </tbody>
+                                        </table>
+                                    </td>
+                                </tr>
+
+                            </t>
+                            <hr></hr>
+                        </t>
+                    </t>
+
+                </tbody>
             </table>
         </xpath>
+
     </template>
 </odoo>

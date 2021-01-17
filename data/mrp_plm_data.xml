@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+        <record id="type_0" model="mrp.plm.type">
+            <field name="sequence" eval="1" />
+            <field name="name">Introduction d'un nouveau produit</field>
+            <field name="color">0</field>
+        </record>
+        <record id="type_1" model="mrp.plm.type">
+            <field name="sequence" eval="2" />
+            <field name="name">Demande de modification</field>
+            <field name="color">1</field>
+        </record>
+        <record id="type_2" model="mrp.plm.type">
+            <field name="sequence" eval="3" />
+            <field name="name">Changement d'indice</field>
+            <field name="color">1</field>
+        </record>
+
+        <record id="stage_1" model="mrp.plm.stage">
+            <field name="sequence" eval="1" />
+            <field name="name">New</field>
+            <field name="type_id">1</field>
+        </record>
+        <record id="stage_2" model="mrp.plm.stage">
+            <field name="sequence" eval="2" />
+            <field name="name">In progress</field>
+            <field name="type_id">1</field>
+        </record>
+        <record id="stage_3" model="mrp.plm.stage">
+            <field name="sequence" eval="3" />
+            <field name="name">Validated</field>
+            <field name="type_id">1</field>
+        </record>
+        <record id="stage_4" model="mrp.plm.stage">
+            <field name="sequence" eval="4" />
+            <field name="name">Effective</field>
+            <field name="type_id">1</field>
+            <field name="final_stage">True</field>
+        </record>
+        <record id="stage_5" model="mrp.plm.stage">
+            <field name="sequence" eval="5" />
+            <field name="name">Rejected</field>
+            <field name="type_id">1</field>
+            <field name="folded">True</field>
+            <field name="final_stage">True</field>
+        </record>
+
+        <record id="tag_1" model="mrp.plm.tag">
+            <field name="name">Todo</field>
+            <field name="color">1</field>
+        </record>
+    </data>
+    <data noupdate="1">
+
+
+        <!-- <record id="mail_alias_plm_inactive" model="mail.alias">
+            <field name="alias_name">inactive</field>
+            <field name="alias_model_id" ref="model_mrp_plm_type"/>
+            <field name="alias_user_id" ref="base.user_admin"/>
+        </record>-->
+    </data>
+</odoo>

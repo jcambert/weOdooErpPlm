@@ -24,17 +24,20 @@
     'data': [
         'security/plm_security.xml',
         'security/ir.model.access.csv',
+        'data/mrp_plm_data.xml',
         'views/mrp_plm_views_menu.xml',
-        'views/mrp_plm_views.xml'
+        'views/mrp_plm_type_views.xml',
+        'views/mrp_plm_stage_views.xml',
+        'views/mrp_plm_tag_views.xml',
+        'views/mrp_plm_views.xml',
         'views/product_views.xml',
         'report/plm_report_views_main.xml',
         'report/plm_production_templates.xml'
     ],
     'qweb': ['static/src/xml/*.xml'],
     # only loaded in demonstration mode
-    'demo': [
-     #   'demo/demo.xml',
-    ],
+    'demo': ['data/mrp_plm_demo.xml'],
+    
     #Module Installation
     'installable': True,
     'application': True,

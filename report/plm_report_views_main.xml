@@ -5,10 +5,10 @@
             <field name="name">Production Order (Advanced)</field>
             <field name="model">mrp.production</field>
             <field name="report_type">qweb-pdf</field>
-            <field name="report_name">weodooerpplm.report_mrporder</field>
-            <field name="report_file">weodooerpplm.report.plm_production_templates</field>
+            <field name="report_name">weOdooErpPlm.report_plm_order</field>
+            <field name="report_file">weOdooErpPlm.report.plm_production_templates</field>
             <field name="print_report_name">'Production Order - %s' % object.name</field>
-            <field name="binding_model_id" ref="model_mrp_production"/>
+            <field name="binding_model_id" ref="mrp.model_mrp_production"/>
             <field name="binding_type">report</field>
         </record>
     </data>

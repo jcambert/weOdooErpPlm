@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+<data noupdate="1">
+    <!--  Maintenance teams -->
+    <!-- <record id="equipment_team_metrology" model="maintenance.team">
+        <field name="name">Metrology</field>
+    </record>
+    <record id="equipment_team_subcontractor" model="maintenance.team">
+        <field name="name">Subcontractor</field>
+    </record> -->
+</data>
+</odoo>

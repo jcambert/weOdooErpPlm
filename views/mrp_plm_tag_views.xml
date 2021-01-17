@@ -1,0 +1,19 @@
+<?xml version="1.0"?>
+<odoo>
+    <record id="mrp_plm_tag_list_view" model="ir.ui.view">
+        <field name="name">mrp.plm.tag.list.view</field>
+        <field name="model">mrp.plm.tag</field>
+        <field name="arch" type="xml">
+            <tree string="Tags" editable="bottom">
+                <field name="name"/>
+            </tree>
+        </field>
+    </record>
+    
+    <record id="mrp_plm_config_tag_action" model="ir.actions.act_window">
+        <field name="name">PLM Tags</field>
+        <field name="res_model">mrp.plm.tag</field>
+        <field name="view_mode">tree</field>
+    </record>
+    <menuitem id="menu_mrp_plm_config_tag" action="mrp_plm_config_tag_action" parent="menu_mrp_plm_configuration" name="Tag" sequence="3"/>
+</odoo>

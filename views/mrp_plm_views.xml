@@ -1,42 +1,73 @@
 <?xml version="1.0"?>
 <odoo>
-   <record id="mrp_plm_type_list_view" model="ir.ui.view">
-        <field name="name">mrp.plm.type.list.view</field>
-        <field name="model">mrp.plm.type</field>
+    <record id="mrp_plm_form_view" model="ir.ui.view">
+        <field name="name">mrp.plm.form.view</field>
+        <field name="model">mrp.plm</field>
         <field name="arch" type="xml">
-            <tree>
-                <field name="sequence" widget="handle"/>
-                <field name="name"/>
-            </tree>
-        </field>
-    </record>
-    <record id="mrp_plm_type_form_view" model="ir.ui.view">
-        <field name="name">mrp.plm.type.form.view</field>
-        <field name="model">mrp.plm.type</field>
-        <field name="arch" type="xml">
-            <form>
+            <form >
+                <field name="user_can_approve" invisible="1"/>
+                <field name="user_can_reject" invisible="1"/>
+                <field name="allow_apply_change" invisible="1"/>
+                <field name="active" invisible="1"/>
+                <field name="state" invisible="1"/>
+                <field name="is_purchase" invisible="1"/>
+                <field name="is_sale" invisible="1"/>
+                <header>
+                    <field name="stage_id" widget="statusbar" options="{'clickable': '1'}" attrs="{'invisible': [('active', '=', False)]}"/>
+                    <button string="Start New Revision" name="action_new_revision" type="object" class="oe_highlight" attrs="{'invisible': [('state', '!=', 'confirmed')]}"/>
+                </header>
                 <sheet>
+
+                    <widget name="web_ribbon" title="Archived" bg_color="bg-danger" attrs="{'invisible': [('active', '=', True)]}"/>
+                    <field name="kanban_state" widget="state_selection"/>
+                    <div class="oe_title">
+                        <label for="name" string="Short Summary" class="oe_edit_only"/>
+                        <h2>
+                            <field name="name" attrs="{'readonly': [('state', '=', 'done')]}"/>
+                        </h2>
+                    </div>
                     <group>
                         <group>
-                            <field name="name" required="1"/>
+                            <field name="type_id" widget="selection" attrs="{'readonly': [('state', '!=', 'confirmed')]}"/>
+                            <!-- <field name="type" widget="radio" attrs="{'readonly': [('state', '!=', 'confirmed')]}"/> -->
+                            <field name="product_tmpl_id" domain="[('type', 'in', ['consu', 'product'])]" attrs="{'readonly': [('state', '!=', 'confirmed')]}"/>
+                            <field name="can_purchase" attrs="{'invisible':[('is_purchase','=',False)]}"/>
+                            <field name="can_receive" attrs="{'invisible':[('is_purchase','=',False)]}"/>
+                            <field name="can_manufacture"  attrs="{'invisible':[('is_sale','=',False)]}"/>
+                            <field name="can_deliver" attrs="{'invisible':[('is_sale','=',False)]}"/>
+                            <!-- <field name="bom_id" context="{'default_product_tmpl_id': product_tmpl_id}" attrs="{'readonly': [('state', '!=', 'confirmed')], 'invisible': [('type', 'in', ('routing', 'product'))], 'required': [('type', 'in', ('bom', 'both'))]}"/>
+                            <field name="new_bom_id" invisible="1"/>
+                            <field name="company_id" groups="base.group_multi_company"/> -->
                         </group>
-                        <group name="group_alias">
-                            
+                        <group>
+                            <field name="user_id" attrs="{'readonly': [('state', '=', 'done')]}" domain="[('share', '=', False)]"/>
+                            <field name="effectivity" widget="radio" attrs="{'readonly': [('state', '=', 'done')]}" required="1"/>
+                            <field name="effectivity_date" attrs="{'invisible': [('effectivity', '=', 'asap')], 'readonly': [('state', '=', 'done')]}"/>
+                            <field name="tag_ids" widget="many2many_tags" options="{'color_field': 'color'}" attrs="{'readonly': [('state', '=', 'done')]}"/>
+                            <!-- <field name="current_bom_id" invisible="1"/> -->
                         </group>
                     </group>
                 </sheet>
+                <div class="oe_chatter">
+                    <field name="message_follower_ids" id="message_follower_ids"/>
+                    <field name="activity_ids" id="activity_ids"/>
+                    <field name="message_ids" id="message_ids"/>
+                </div>
             </form>
         </field>
     </record>
-     <record id="mrp_plm_config_type_action" model="ir.actions.act_window">
-        <field name="name">PLM Types</field>
-        <field name="res_model">mrp.plm.type</field>
-        <field name="view_mode">tree,form</field>
+    <!-- <record id="mrp_plm_kaban_view" model="ir.ui.view">
+        <field name="name">mrp.plm.kanban.view</field>
+        <field name="model">mrp.plm</field>
+        <field name="arch" type="xml">
+            <kanban default_group_by="stage_id" class="o_kanban_small_column" quick_create="false" sample="1">
+            </kanban>
+        </field>
+    </record> -->
+    <record id="mrp_plm_action" model="ir.actions.act_window">
+        <field name="name">Modifications Techniques</field>
+        <field name="res_model">mrp.plm</field>
+        <field name="view_mode">kanban,tree,form</field>
     </record>
-    <menuitem 
-            id="menu_mrp_plm_config_type"
-            action="mrp_plm_config_type_action"
-            parent="menu_mrp_plm_configuration"
-            name="Type"
-            sequence="1"/>
+    <menuitem id="menu_mrp_plm" action="mrp_plm_action" parent="menu_mrp_plm_root" name="Modifications" sequence="2"/>
 </odoo>

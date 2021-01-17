@@ -7,7 +7,7 @@ class PlmTag(models.Model):
     name = fields.Char('Tag Name', required=True, translate=True)
     color = fields.Integer('Color Index')
     
-    display_name=fields.Char(readonly=True,help="Nom affiché")
+    # display_name=fields.Char(readonly=True,help="Nom affiché")
     _sql_constraints = [
         ('name_uniq', 'unique (name)', "Tag name already exists !"),
     ]

@@ -1,0 +1,58 @@
+<?xml version="1.0"?>
+<odoo>
+   <record id="mrp_plm_stage_list_view" model="ir.ui.view">
+        <field name="name">mrp.plm.stage.list.view</field>
+        <field name="model">mrp.plm.stage</field>
+        <field name="arch" type="xml">
+            <tree>
+                <field name="sequence" widget="handle"/>
+                <field name="name"/>
+                <field name="type_id"/>
+                <field name="approval_roles"/>
+                <field name="folded"/>
+                <field name="final_stage"/>
+            </tree>
+        </field>
+    </record>
+    <record id="mrp_plm_stage_form_view" model="ir.ui.view">
+        <field name="name">mrp.plm.stage.form.view</field>
+        <field name="model">mrp.plm.stage</field>
+        <field name="arch" type="xml">
+            <form>
+                <sheet>
+                    <group>
+                        <group>
+                            <field name="name"/>
+                            <field name="type_id"/>
+                        </group>
+                        <group>
+                            <field name="folded"/>
+                            <field name="allow_apply_change"/>
+                            <field name="final_stage"/>
+                        </group>
+                    </group>
+                    <h2>Approvals</h2>
+                    <field name="approval_template_ids">
+                        <tree editable="bottom">
+                            <field name="sequence" widget="handle"/>
+                            <field name="name" placeholder="e.g. Engineering Department"/>
+                            <field name="user_ids" widget="many2many_tags" options="{'color_field': 'color'}"/>
+                            <field name="approval_type"/>
+                        </tree>
+                    </field>
+                </sheet>
+            </form>
+        </field>
+    </record>
+     <record id="mrp_plm_config_stage_action" model="ir.actions.act_window">
+        <field name="name">PLM Stages</field>
+        <field name="res_model">mrp.plm.stage</field>
+        <field name="view_mode">tree,form</field>
+    </record>
+    <menuitem 
+            id="menu_mrp_plm_config_stage"
+            action="mrp_plm_config_stage_action"
+            parent="menu_mrp_plm_configuration"
+            name="Stage"
+            sequence="2"/>
+</odoo>
