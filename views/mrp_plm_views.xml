@@ -33,7 +33,7 @@
                             <field name="product_tmpl_id" domain="[('type', 'in', ['consu', 'product'])]" attrs="{'readonly': [('state', '!=', 'confirmed')]}"/>
                             <field name="can_purchase" attrs="{'invisible':[('is_purchase','=',False)]}"/>
                             <field name="can_receive" attrs="{'invisible':[('is_purchase','=',False)]}"/>
-                            <field name="can_manufacture"  attrs="{'invisible':[('is_sale','=',False)]}"/>
+                            <field name="can_manufacture" attrs="{'invisible':[('is_sale','=',False)]}"/>
                             <field name="can_deliver" attrs="{'invisible':[('is_sale','=',False)]}"/>
                             <!-- <field name="bom_id" context="{'default_product_tmpl_id': product_tmpl_id}" attrs="{'readonly': [('state', '!=', 'confirmed')], 'invisible': [('type', 'in', ('routing', 'product'))], 'required': [('type', 'in', ('bom', 'both'))]}"/>
                             <field name="new_bom_id" invisible="1"/>
@@ -47,6 +47,40 @@
                             <!-- <field name="current_bom_id" invisible="1"/> -->
                         </group>
                     </group>
+                    <notebook>
+                        <page name="note" string="Note">
+                            <field name="note" attrs="{'readonly': [('state', '=', 'done')]}" placeholder="Description of the change and its reason."/>
+                        </page>
+                         <page string="Approvals" name="approvals">
+                            <field name="approval_ids" nolabel="1" readonly="1" help="Define the approval roles on the ECO stages.">
+                            <!-- decoration-muted="template_stage_id != eco_stage_id" -->
+                                <tree decoration-danger="template_stage_id == eco_stage_id and status == 'rejected' and not is_closed" decoration-info="template_stage_id == eco_stage_id and status == 'none' and not is_closed" decoration-success="template_stage_id == eco_stage_id and status in ('approved', 'commented') and not is_closed" >
+                                    <field name="name"/>
+                                    <field name="user_id"/>
+                                    <field name="status"/>
+                                    <field name="approval_date"/>
+                                    <field name="template_stage_id"/>
+                                    <field name="required_user_ids" widget="many2many_tags" options="{'color_field': 'color'}"/>
+                                    <field name="eco_stage_id" invisible="0"/>
+                                    <field name="is_closed" invisible="0"/>
+                                </tree>
+                                <form>
+                                    <group>
+                                        <group>
+                                            <field name="name"/>
+                                            <field name="user_id"/>
+                                            <field name="status"/>
+                                        </group>
+                                        <group>
+                                            <field name="template_stage_id"/>
+                                            <field name="required_user_ids" widget="many2many_tags" options="{'color_field': 'color'}"/>
+                                            <field name="eco_stage_id" groups="base.group_no_one"/>
+                                        </group>
+                                    </group>
+                                </form>
+                            </field>
+                        </page>
+                    </notebook>
                 </sheet>
                 <div class="oe_chatter">
                     <field name="message_follower_ids" id="message_follower_ids"/>
