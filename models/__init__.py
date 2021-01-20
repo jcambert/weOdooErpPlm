@@ -1,3 +1,6 @@
+from . import user
+from . import role
+
 from . import product
 from . import plm_tag
 from . import plm_sequence

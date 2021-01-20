@@ -18,13 +18,17 @@
     'category': 'Productivity',
     'version': '1.0',
     # any module necessary for this one to work correctly
-    'depends': ['mrp','base','product', 'mail', 'uom'],
+    'depends': ['base','mrp','product', 'mail', 'uom'],
 
     # always loaded
     'data': [
         'security/plm_security.xml',
         'security/ir.model.access.csv',
+        # 'data/ir_cron.xml',
+        'data/ir_module_category.xml',
         'data/mrp_plm_data.xml',
+        'views/user.xml',
+        'views/role.xml',
         'views/mrp_plm_views_menu.xml',
         'views/mrp_plm_type_views.xml',
         'views/mrp_plm_stage_views.xml',

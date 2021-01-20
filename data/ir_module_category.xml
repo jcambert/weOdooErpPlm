@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+<data>
+<record model="ir.module.category" id="ir_module_category_role">
+    <field name='name'>User roles</field>
+</record>
+</data>
+</odoo>

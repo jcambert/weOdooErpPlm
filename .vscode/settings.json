@@ -2,7 +2,10 @@
     "python.autoComplete.extraPaths": [
         "${workspaceRoot}/../odoo/addons",
         "${workspaceRoot}/../odoo",
-        "${workspaceRoot}/../odoo/extra-addons" 
+        "${workspaceRoot}/../odoo/extra-addons" ,
+        "/mnt/c/Users/jc.ambert/odoo",
+        "/mnt/c/Users/jc.ambert/odoo/addons",
+        "/mnt/c/Users/jc.ambert/odoo/extra-addons"
     ],
     "python.linting.enabled": true,
     "files.autoSave": "afterDelay",
