@@ -12,14 +12,33 @@
                 <field name="state" invisible="1"/>
                 <field name="is_purchase" invisible="1"/>
                 <field name="is_sale" invisible="1"/>
+                <field name="allow_change_stage" invisible="1" />
+                <field name="allow_start_revision" invisible="1" />
+                <field name="has_approval" invisible="1" />
+                
                 <header>
-                    <field name="stage_id" widget="statusbar" options="{'clickable': '1'}" attrs="{'invisible': [('active', '=', False)]}"/>
-                    <button string="Start New Revision" name="action_new_revision" type="object" class="oe_highlight" attrs="{'invisible': [('state', '!=', 'confirmed')]}"/>
+                    <field name="stage_id" widget="statusbar" options="{'clickable': '1'}" attrs="{'invisible': ['|',('active', '=', False),('allow_change_stage', '=', False)]}"/>
+                    <button string="Start New Revision" name="action_new_revision" type="object" class="oe_highlight" attrs="{'invisible': [('allow_start_revision', '=', False)]}"/>
+                    <button string="Approve" name="action_approve" type="object" class="oe_highlight" attrs="{'invisible': ['|',('user_can_approve', '=', False),('allow_change_stage', '=', False)]}"/>
+                    <button string="Reject" name="action_reject" type="object" class="oe_highlight" attrs="{'invisible': ['|',('user_can_reject', '=', False),('allow_change_stage', '=', False)]}"/>
                 </header>
                 <sheet>
 
                     <widget name="web_ribbon" title="Archived" bg_color="bg-danger" attrs="{'invisible': [('active', '=', True)]}"/>
-                    <field name="kanban_state" widget="state_selection"/>
+                    <div class="oe_button_box" name="button_box">
+                        <button name="toggle_active" type="object" class="oe_stat_button" icon="fa-archive">
+                            <field name="active" widget="boolean_toggle" />
+                        </button>
+                    </div>
+                    <!-- <field name="kanban_state" widget="state_selection"/> -->
+                    <t t-name="kanban_box">
+
+                    <span t-if="kanban_state.raw_value == 'waiting'" class="o_status o_status_red" title="Waiting starting revision" role="img" aria-label="Waiting starting revision"/>
+                    <span t-if="kanban_state.raw_value == 'none'" class="o_status o_status_green" title="No Approval need" role="img" aria-label="No approval is needed"/>
+                    <span t-if="kanban_state.raw_value == 'normal'" class="o_status o_status_grey" title="Waiting for Approvals" role="img" aria-label="Waiting for Approvals"/>
+                    <span t-if="kanban_state.raw_value == 'done'" class="o_status o_status_green" title="All Approvals have be done" role="img" aria-label="All Approvals have be done"/>
+                    <span t-if="kanban_state.raw_value == 'blocked'" class="o_status o_status_red" title="Someone rejected this change" role="img" aria-label="Someone rejected this change"/>
+                    </t>
                     <div class="oe_title">
                         <label for="name" string="Short Summary" class="oe_edit_only"/>
                         <h2>
@@ -47,38 +66,39 @@
                             <!-- <field name="current_bom_id" invisible="1"/> -->
                         </group>
                     </group>
-                    <notebook>
-                        <page name="note" string="Note">
-                            <field name="note" attrs="{'readonly': [('state', '=', 'done')]}" placeholder="Description of the change and its reason."/>
-                        </page>
-                         <page string="Approvals" name="approvals">
+                    <notebook attrs="{'invisible': [('allow_change_stage', '=', False)]}">
+
+                        <page string="Approvals" name="approvals" attrs="{'invisible': [('has_approval', '=', False)]}">
                             <field name="approval_ids" nolabel="1" readonly="1" help="Define the approval roles on the ECO stages.">
-                            <!-- decoration-muted="template_stage_id != eco_stage_id" -->
-                                <tree decoration-danger="template_stage_id == eco_stage_id and status == 'rejected' and not is_closed" decoration-info="template_stage_id == eco_stage_id and status == 'none' and not is_closed" decoration-success="template_stage_id == eco_stage_id and status in ('approved', 'commented') and not is_closed" >
-                                    <field name="name"/>
+                                <!-- decoration-muted="template_stage_id != eco_stage_id" -->
+                                <tree decoration-danger="template_stage_id == eco_stage_id and status == 'rejected' and not is_closed" decoration-info="template_stage_id == eco_stage_id and status == 'none' and not is_closed" decoration-success="template_stage_id == eco_stage_id and status in ('approved', 'commented') and not is_closed" decoration-muted="template_stage_id != eco_stage_id">
+                                    <field name="roles_names" />
                                     <field name="user_id"/>
                                     <field name="status"/>
                                     <field name="approval_date"/>
-                                    <field name="template_stage_id"/>
-                                    <field name="required_user_ids" widget="many2many_tags" options="{'color_field': 'color'}"/>
-                                    <field name="eco_stage_id" invisible="0"/>
-                                    <field name="is_closed" invisible="0"/>
+                                    <field name="template_stage_id" />
+                                    <field name="eco_stage_id" invisible="1"/>
+                                    <field name="is_approved" invisible="1"/>
+                                    <field name="is_rejected" invisible="1"/>
+                                    <field name="is_closed" invisible="1"/>
                                 </tree>
                                 <form>
                                     <group>
                                         <group>
-                                            <field name="name"/>
+                                            <field name="roles"/>
                                             <field name="user_id"/>
                                             <field name="status"/>
                                         </group>
                                         <group>
                                             <field name="template_stage_id"/>
-                                            <field name="required_user_ids" widget="many2many_tags" options="{'color_field': 'color'}"/>
                                             <field name="eco_stage_id" groups="base.group_no_one"/>
                                         </group>
                                     </group>
                                 </form>
                             </field>
+                        </page>
+                        <page name="note" string="Note">
+                            <field name="note" attrs="{'readonly': [('state', '=', 'done')]}" placeholder="Description of the change and its reason."/>
                         </page>
                     </notebook>
                 </sheet>
@@ -90,18 +110,135 @@
             </form>
         </field>
     </record>
-    <!-- <record id="mrp_plm_kaban_view" model="ir.ui.view">
+    <record id="mrp_plm_kaban_view" model="ir.ui.view">
         <field name="name">mrp.plm.kanban.view</field>
         <field name="model">mrp.plm</field>
         <field name="arch" type="xml">
-            <kanban default_group_by="stage_id" class="o_kanban_small_column" quick_create="false" sample="1">
+            <kanban default_group_by="stage_id" class="oe_background_grey o_kanban_dashboard o_project_kanban o_emphasize_colors" quick_create="false" sample="1">
+                <!-- disable_drag_drop_record="true" -->
+                <field name="name"/>
+                <!-- <field name="bom_id"/> -->
+                <field name="effectivity_date"/>
+                <!-- <field name="displayed_image_attachment_id"/> -->
+                <field name="stage_id"/>
+                <field name="color"/>
+                <field name="kanban_state"/>
+                <!-- <field name="user_id"/> -->
+                <!-- <field name="product_tmpl_id"/> -->
+                <field name="tag_ids"/>
+                <!-- <field name="priority"/> -->
+                <!-- <field name="type"/> -->
+                <field name="activity_ids"/>
+                <field name="activity_state"/>
+                <progressbar field="kanban_state" colors="{&quot;normal&quot;: &quot;primary&quot;, &quot;done&quot;: &quot;success&quot;, &quot;blocked&quot;: &quot;danger&quot;}"/>
+                <templates>
+                    <t t-name="kanban-box">
+                        <div t-attf-class="{{!selection_mode ? 'oe_kanban_color_' + kanban_getcolor(record.color.raw_value) : ''}} oe_kanban_card oe_kanban_global_click">
+                            <span class="oe_kanban_color_help" t-attf-title="In #{kanban_getcolorname(record.color.raw_value)}" role="img" t-attf-aria-label="In #{kanban_getcolorname(record.color.raw_value)}"/>
+                            <div class="o_dropdown_kanban dropdown" groups="base.group_user">
+                                <a role="button" class="dropdown-toggle o-no-caret btn" data-toggle="dropdown" href="#" aria-label="Dropdown menu" title="Dropdown menu">
+                                    <span class="fa fa-ellipsis-v"/>
+                                </a>
+                                <div class="dropdown-menu" role="menu">
+                                    <t t-if="widget.editable">
+                                        <a type="set_cover" class="dropdown-item" role="menuitem">Set Cover Image</a>
+                                    </t>
+                                    <t t-if="widget.editable">
+                                        <a type="edit" class="dropdown-item" role="menuitem">Edit Task</a>
+                                    </t>
+                                    <t t-if="widget.deletable">
+                                        <a type="delete" class="dropdown-item" role="menuitem">Delete</a>
+                                    </t>
+                                    <ul class="oe_kanban_colorpicker" data-field="color"/>
+                                </div>
+                            </div>
+                            <div class="oe_kanban_content">
+                                <div class="o_kanban_record_title">
+                                    <field name="name"/>
+                                </div>
+                                <div>
+                                    <field name="tag_ids" widget="many2many_tags" options="{'color_field': 'color'}"/>
+                                </div>
+                                <div t-if="record.product_tmpl_id.raw_value">
+                                    <field name="product_tmpl_id"/>
+                                </div>
+                                <!-- <div t-if="record.type.raw_value == 'bom' or record.type.raw_value == 'both'">
+                                    <span>BoM: <field name="bom_id"/></span>
+                                </div> -->
+                                <div class="text-muted">
+                                    <t t-if="record.effectivity_date.raw_value and record.effectivity_date.raw_value lt (new Date())" t-set="red">oe_kanban_text_red</t>
+                                    <span t-attf-class="#{red || ''}">
+                                        <i>
+                                            <field name="effectivity_date"/>
+                                        </i>
+                                    </span>
+                                </div>
+                            </div>
+                            <div class="o_kanban_record_bottom">
+                                <!-- <div class="oe_kanban_bottom_left">
+                                    <field name="priority" widget="priority"/>
+                                </div> -->
+                                <div class="oe_kanban_bottom_right">
+                                    <div class="float-left mr4" groups="base.group_user">
+                                        <field name="activity_ids" widget="kanban_activity"/>
+                                        <span t-if="record.kanban_state.raw_value == 'waiting'" class="o_status o_status_red" title="Waiting starting revision" role="img" aria-label="Waiting starting revision"/>
+                                        <span t-if="record.kanban_state.raw_value == 'none'" class="o_status o_status_green" title="No Approval need" role="img" aria-label="No approval is needed"/>
+                                        <span t-if="record.kanban_state.raw_value == 'normal'" class="o_status o_status_grey" title="Waiting for Approvals" role="img" aria-label="Waiting for Approvals"/>
+                                        <span t-if="record.kanban_state.raw_value == 'done'" class="o_status o_status_green" title="All Approvals have be done" role="img" aria-label="All Approvals have be done"/>
+                                        <span t-if="record.kanban_state.raw_value == 'blocked'" class="o_status o_status_red" title="Someone rejected this change" role="img" aria-label="Someone rejected this change"/>
+                                    </div>
+                                    <field name="user_id" widget="many2one_avatar_user"/>
+                                </div>
+                            </div>
+                            <!-- <div t-if="record.displayed_image_attachment_id.value">
+                                <field name="displayed_image_attachment_id" widget="attachment_image"/>
+                            </div> -->
+                        </div>
+                    </t>
+                </templates>
             </kanban>
         </field>
-    </record> -->
+    </record>
+
+    <record id="mrp_plm_calendar_view" model="ir.ui.view">
+        <field name="name">mrp.plm.calendar.view</field>
+        <field name="model">mrp.plm</field>
+        <field name="arch" type="xml">
+            <calendar string="ECOs" date_start="create_date" date_stop="effectivity_date" color="stage_id" event_limit="5">
+                <field name="user_id" avatar_field="image_128"/>
+                <field name="product_tmpl_id"/>
+                <!-- <field name="type"/> -->
+                <field name="stage_id" filters="1"/>
+            </calendar>
+        </field>
+    </record>
+    <record id="mrp_plm_pivot_view" model="ir.ui.view">
+        <field name="name">mrp.plm.pivot.view</field>
+        <field name="model">mrp.plm</field>
+        <field name="arch" type="xml">
+            <pivot string="ECO Analysis" sample="1">
+                <!--<field name="company_id" type="row"/>-->
+                <field name="stage_id" type="col"/>
+                <field name="product_tmpl_id" type="row"/>
+                <field name="color" invisible="1"/>
+            </pivot>
+        </field>
+    </record>
+     <record id="mrp_plm_graph_view" model="ir.ui.view">
+        <field name="name">mrp.plm.graph.view</field>
+        <field name="model">mrp.plm</field>
+        <field name="arch" type="xml">
+            <graph string="ECO Analysis" sample="1">
+                <!--<field name="company_id" type="row"/>-->
+                <field name="stage_id" type="row"/>
+                <field name="product_tmpl_id" type="col"/>
+            </graph>
+        </field>
+    </record>
     <record id="mrp_plm_action" model="ir.actions.act_window">
         <field name="name">Modifications Techniques</field>
         <field name="res_model">mrp.plm</field>
-        <field name="view_mode">kanban,tree,form</field>
+        <field name="view_mode">kanban,tree,calendar,pivot,graph,form</field>
     </record>
     <menuitem id="menu_mrp_plm" action="mrp_plm_action" parent="menu_mrp_plm_root" name="Modifications" sequence="2"/>
 </odoo>

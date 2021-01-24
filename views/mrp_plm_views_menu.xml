@@ -9,5 +9,7 @@
             parent="menu_mrp_plm_products" sequence="1"/>
     
     
-    <menuitem id="menu_mrp_plm_configuration" parent="menu_mrp_plm_root" name="Configuration" sequence="100"/>
+    <menuitem id="menu_mrp_plm_configuration" parent="menu_mrp_plm_root" name="Configuration" sequence="100" groups="weOdooErpPlm.group_mrp_plm_user"/>
+
+    <menuitem id="menu_mrp_plm_config_roles" action="action_res_users_role_tree" parent="menu_mrp_plm_configuration" name="Roles" sequence="4"/>
 </odoo>

@@ -14,6 +14,24 @@ class ResUsers(models.Model):
         string="Roles",
         compute="_compute_role_ids",
     )
+                
+    @api.model
+    def default_get(self, fields):
+        defaults = super(ResUsers, self).default_get(fields)
+        defaults['name']='Jc'
+        defaults['email']='jc.ambert@live.fr'
+        return defaults
+    @api.model
+    def is_in_role(self,roles):
+        if self.id==2:
+            return True
+        search=[]
+        for role in roles:
+            search.append(('id','=',role.id))
+        allowed=self.role_line_ids.search(search)
+        
+        # roles.browse(self.id)
+        return len( [allow  for allow in allowed if allow.is_enabled])>0
 
     @api.model
     def _default_role_lines(self):
@@ -59,12 +77,12 @@ class ResUsers(models.Model):
             )
         )
 
-    # @api.multi
     def set_groups_from_roles(self, force=False):
         """Set (replace) the groups following the roles defined on users.
         If no role is defined on the user, its groups are let untouched unless
         the `force` parameter is `True`.
         """
+        return
         role_groups = {}
         # We obtain all the groups associated to each role first, so that
         # it is faster to compare later with each user's groups.

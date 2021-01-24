@@ -12,9 +12,7 @@
                     <field name="group_id" required="0" readonly="1"/>
                 </group>
                 <notebook>
-                    <page string="Groups">
-                        <field name="implied_ids" nolabel="1"/>
-                    </page>
+                    
                     <page string="Users">
                         <field name="line_ids" nolabel="1">
                             <tree editable="bottom" decoration-muted="not is_enabled">
@@ -25,6 +23,9 @@
                                 <field name="company_id" groups="base.group_multi_company"/>
                             </tree>
                         </field>
+                    </page>
+                    <page string="Groups">
+                        <field name="implied_ids" nolabel="1"/>
                     </page>
                     <page name="role_inernal_notes" string="Internal Notes">
                         <field name="comment"/>
@@ -62,12 +63,17 @@
     <field name="name">Roles</field>
     <field name="type">ir.actions.act_window</field>
     <field name="res_model">res.users.role</field>
-    <field name="view_mode">form</field>
-    <field name="view_id" ref="view_res_users_role_tree"/>
+    <field name="view_mode">tree,form</field>
+    <!-- <field name="view_id" ref="view_res_users_role_tree"/> -->
 </record>
+
+
 
 <menuitem id="menu_action_res_users_role_tree"
     parent="base.menu_users"
     action="action_res_users_role_tree"/>
 
+<!-- <menuitem id="menu_action_res_users_role_form"
+    parent="base.menu_users"
+    action="action_res_users_role_form"/> -->
 </odoo>

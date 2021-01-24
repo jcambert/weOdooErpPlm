@@ -36,20 +36,22 @@
             <field name="sequence" eval="4" />
             <field name="name">Effective</field>
             <field name="type_id">1</field>
-            <field name="final_stage">True</field>
+            <field name="effective_stage">True</field>
         </record>
         <record id="stage_5" model="mrp.plm.stage">
             <field name="sequence" eval="5" />
             <field name="name">Rejected</field>
             <field name="type_id">1</field>
             <field name="folded">True</field>
-            <field name="final_stage">True</field>
+            <field name="reject_stage">True</field>
         </record>
 
         <record id="tag_1" model="mrp.plm.tag">
             <field name="name">Todo</field>
             <field name="color">1</field>
         </record>
+
+        
     </data>
     <data noupdate="1">
 

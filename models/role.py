@@ -77,6 +77,12 @@ class ResUsersRole(models.Model):
         logging.info("Update user roles")
         self.search([]).update_users()
 
+    # @api.model
+    # def roles(self):
+    #     roles=[]
+    #     for name in self.line_ids:
+    #         roles.append(name)
+    #     return roles
 
 class ResUsersRoleLine(models.Model):
     _name = "res.users.role.line"
