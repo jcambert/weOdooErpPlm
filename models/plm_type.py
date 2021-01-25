@@ -25,14 +25,24 @@ class PlmType(models.Model):
     # message_unread=fields.Boolean(readonly=True,string="Messages non lus")
     # message_unread_counter=fields.Integer(readonly=True,string="Compteur de messages non lus")
 
-    nb_approvals=fields.Integer(readonly=True,string="En attente de validation")
-    nb_approvals_my=fields.Integer(readonly=True,string="En attente de ma validation")
-    nb_ecos=fields.Integer(readonly=True)
-    nb_validation=fields.Integer(readonly=True,string="À appliquer")
+    nb_approvals=fields.Integer(readonly=True,string="En attente de validation",compute='_compute_nb_approvals')
+    nb_approvals_my=fields.Integer(readonly=True,string="En attente de ma validation",compute='_compute_nb_approvals_my')
+    nb_ecos=fields.Integer(readonly=True,compute='_compute_nb_ecos')
+    nb_validation=fields.Integer(readonly=True,string="À appliquer",compute='_compute_nb_validation')
     stage_ids=fields.One2many('mrp.plm.stage','type_id',string="Etapes")
     # website_message_ids=fields.One2many('mail.message','res_id',string="Messages du site web")
 
-
-
-
+    def _compute_nb_approvals_my(self):
+        for record in self:
+            record.nb_approvals_my=1
+    def _compute_nb_ecos(self):
+        for record in self:
+            count=self.env['mrp.plm'].search_count([('active','=',True),('type_id','=',record.id)])
+            record.nb_ecos=count
+    def _compute_nb_approvals(self):
+        for record in self:
+            record.nb_approvals=3
+    def _compute_nb_validation(self):
+        for record in self:
+            record.nb_validation=4
     
