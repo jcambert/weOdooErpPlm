@@ -1,4 +1,6 @@
 {
+    "editor.fontSize": 18,
+    "terminal.integrated.fontFamily": "Cascadia Code PL",
     "python.autoComplete.extraPaths": [
         "${workspaceRoot}/../odoo/addons",
         "${workspaceRoot}/../odoo",

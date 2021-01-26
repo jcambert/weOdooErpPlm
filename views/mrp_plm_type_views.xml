@@ -46,7 +46,7 @@
                             <div t-attf-class="o_kanban_card_header">
                                 <div class="o_kanban_card_header_title">
                                     <div class="o_primary">
-                                        <field name="name"/>
+                                        <field name="name" />
                                     </div>
                                     <!-- <div t-if="record.alias_name.value and record.alias_domain.value">
                                         <small>

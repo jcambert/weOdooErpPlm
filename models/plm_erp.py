@@ -26,7 +26,7 @@ class Plm(models.Model):
     effectivity=fields.Selection([('asap','Asap'),('date','to date')],'Date effective',help="Entrée en vigueur")
     effectivity_date=fields.Date(string="Date d'entrée en vigueur")
     has_approval = fields.Integer('Has approval',readonly=True,compute='_compute_has_approval')
-    kanban_state=fields.Selection([('waiting','Waiting start revision'), ('none','Not needed') ,('normal','Normal'),('done','Done'),('blocked','Blocked')],'Kanban State',compute='_compute_kanban_state',help="État kanban")
+    kanban_state=fields.Selection([('waiting','Waiting start revision'), ('none','Not needed') ,('normal','Normal'),('done','Done'),('blocked','Blocked')],'Kanban State',compute='_compute_kanban_state',help="État kanban",store=True)
     # message_attachment_count=fields.Integer(readonly=True, string="Nombre de pièces jointes")
     # message_channel_ids=fields.Many2many('mail.channel',readonly=True,string="Abonnés (Canaux)")
     # message_follower_ids=fields.One2many('mail.followers','res_id',help="Abonnés")
@@ -111,6 +111,7 @@ class Plm(models.Model):
             else:
                 record.user_can_reject=False
 
+    @api.depends('stage_id','state')
     def _compute_kanban_state(self):
         for record in self:
             candidates=record.approval_ids.search([('template_stage_id','=',record.stage_id.id)])

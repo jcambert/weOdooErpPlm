@@ -31,14 +31,16 @@
                         </button>
                     </div>
                     <!-- <field name="kanban_state" widget="state_selection"/> -->
-                    <t t-name="kanban_box">
-
+                   
+                    <span>TOTO</span>
+                    <field name="kanban_state.raw_value" /> 
+                    <span>TITI</span>
+                    
                     <span t-if="kanban_state.raw_value == 'waiting'" class="o_status o_status_red" title="Waiting starting revision" role="img" aria-label="Waiting starting revision"/>
                     <span t-if="kanban_state.raw_value == 'none'" class="o_status o_status_green" title="No Approval need" role="img" aria-label="No approval is needed"/>
                     <span t-if="kanban_state.raw_value == 'normal'" class="o_status o_status_grey" title="Waiting for Approvals" role="img" aria-label="Waiting for Approvals"/>
                     <span t-if="kanban_state.raw_value == 'done'" class="o_status o_status_green" title="All Approvals have be done" role="img" aria-label="All Approvals have be done"/>
                     <span t-if="kanban_state.raw_value == 'blocked'" class="o_status o_status_red" title="Someone rejected this change" role="img" aria-label="Someone rejected this change"/>
-                    </t>
                     <div class="oe_title">
                         <label for="name" string="Short Summary" class="oe_edit_only"/>
                         <h2>
@@ -154,6 +156,7 @@
                             </div>
                             <div class="oe_kanban_content">
                                 <div class="o_kanban_record_title">
+                                    
                                     <field name="name"/>
                                 </div>
                                 <div>
@@ -212,6 +215,7 @@
             </calendar>
         </field>
     </record>
+
     <record id="mrp_plm_pivot_view" model="ir.ui.view">
         <field name="name">mrp.plm.pivot.view</field>
         <field name="model">mrp.plm</field>
@@ -224,6 +228,7 @@
             </pivot>
         </field>
     </record>
+    
      <record id="mrp_plm_graph_view" model="ir.ui.view">
         <field name="name">mrp.plm.graph.view</field>
         <field name="model">mrp.plm</field>
@@ -235,6 +240,7 @@
             </graph>
         </field>
     </record>
+   
     <record id="mrp_plm_action" model="ir.actions.act_window">
         <field name="name">Modifications Techniques</field>
         <field name="res_model">mrp.plm</field>
