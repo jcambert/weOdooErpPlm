@@ -12,22 +12,26 @@ class WeAddonProduct(models.Model):
          ('inactive', 'Deactivated')
     ],string='State',required=True,store=True,readonly=True,default='new')
     plm=fields.One2many('mrp.plm','product_tmpl_id',help="PLM")
-    eco_count=fields.Integer('Plm Count',store=False)
-    # eco_count=fields.Integer('Plm Count',compute='_compute_eco_count')
+    # eco_count=fields.Integer('Plm Count',store=False)
+    eco_count=fields.Integer('Plm Count',compute='_compute_eco_count',store=False,)
 
     @api.model
     def default_get(self, fields):
         defaults = super(WeAddonProduct, self).default_get(fields)
-        defaults['eco_count']=10
+        # defaults['eco_count']=10
         return defaults
 
-    # @api.depends('plm')
-    # def _compute_eco_count(self):
-    #     for record in self:
-    #         record.eco_count= 5
+    @api.depends('plm')
+    def _compute_eco_count(self):
+        for record in self:
+            record.eco_count= self.plm.search_count([('state','!=','done')])
 
     def action_view_plm(self):
         print('View PLM')
+        action = self.env["ir.actions.actions"]._for_xml_id("weOdooErpPlm.mrp_plm_action")
+        action['domain'] = [('state', '!=', 'done'), ('product_tmpl_id', 'in', self.ids)]
+        action['context'] = {}
+        return action
     # @api.onchange('purchase_ok')
     # def _onchange_purchase_ok(self):
         # if not self.purchase_ok :

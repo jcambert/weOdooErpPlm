@@ -42,7 +42,7 @@
             <field name="sequence" eval="5" />
             <field name="name">Rejected</field>
             <field name="type_id">1</field>
-            <field name="folded">True</field>
+            <field name="fold">True</field>
             <field name="reject_stage">True</field>
         </record>
 

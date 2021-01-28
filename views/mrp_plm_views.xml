@@ -32,16 +32,11 @@
                     </div>
                     <!-- <field name="kanban_state" widget="state_selection"/> -->
                    
-                    <span>TOTO</span>
-                    <field name="kanban_state.raw_value" /> 
-                    <span>TITI</span>
                     
-                    <span t-if="kanban_state.raw_value == 'waiting'" class="o_status o_status_red" title="Waiting starting revision" role="img" aria-label="Waiting starting revision"/>
-                    <span t-if="kanban_state.raw_value == 'none'" class="o_status o_status_green" title="No Approval need" role="img" aria-label="No approval is needed"/>
-                    <span t-if="kanban_state.raw_value == 'normal'" class="o_status o_status_grey" title="Waiting for Approvals" role="img" aria-label="Waiting for Approvals"/>
-                    <span t-if="kanban_state.raw_value == 'done'" class="o_status o_status_green" title="All Approvals have be done" role="img" aria-label="All Approvals have be done"/>
-                    <span t-if="kanban_state.raw_value == 'blocked'" class="o_status o_status_red" title="Someone rejected this change" role="img" aria-label="Someone rejected this change"/>
-                    <div class="oe_title">
+                    <field name="kanban_state" widget="state_selection" class="ml-auto float-right"/> 
+                    
+                    
+                     <div class="oe_title">
                         <label for="name" string="Short Summary" class="oe_edit_only"/>
                         <h2>
                             <field name="name" attrs="{'readonly': [('state', '=', 'done')]}"/>

@@ -9,7 +9,7 @@
                 <field name="name"/>
                 <field name="type_id"/>
                 <field name="approval_roles"/>
-                <field name="folded"/>
+                <field name="fold"/>
                 <field name="final_stage"/>
             </tree>
         </field>
@@ -26,7 +26,7 @@
                             <field name="type_id"/>
                         </group>
                         <group>
-                            <field name="folded"/>
+                            <field name="fold"/>
                             <field name="allow_apply_change"/>
                             <field name="effective_stage"/>
                             <field name="reject_stage"/>

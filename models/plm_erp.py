@@ -2,31 +2,17 @@
 from odoo.exceptions import UserError
 from odoo import models, fields, api,_,SUPERUSER_ID
 class Plm(models.Model):
-   
-    
-
     _name='mrp.plm'
     _description='Mrp Plm'
     _inherit=['mail.activity.mixin','mail.thread']
-   
-    active=fields.Boolean('Active', default=True, help="Si le champ actif est défini sur False, vous pourrez masquer l'ordre de modification technique sans le supprimer.")
-    allow_apply_change=fields.Boolean("Afficher les modifications appliquées",compute='_compute_allow_apply_change')
-    allow_change_stage=fields.Boolean(compute='_compute_allow_change_state', string="Autoriser le changement d'étape")
-    allow_start_revision=fields.Boolean(compute='_compute_can_start_revision')
-    approval_ids=fields.One2many('mrp.plm.approval','eco_id',help="Validations")
     # bom_change_ids=fields.One2many('mrp.plm.bom.change','eco_id',readonly=True,help="Modifications de la nomenclature OMT")
     # bom_id=fields.Many2one('mrp.bom',ondelete='set null',help="Nomenclature")
     # bom_rebase_ids=fields.One2many('mrp.plm.bom.change','rebase_id',help="Refonte de la nomenclature")
-    color = fields.Integer('Couleur')
     # company_id=fields.Many2one('res.company','Company',ondelete='set null',help="Societé")
     # current_bom_id=fields.Many2one('mrp.bom','Current Bom',ondelete='set null',help="Nouvelle nomenclature")
     # display_name=fields.Char(readonly=True,string="Nom affiché")
     # displayed_image_attachment_id=fields.Many2one('ir.attachment','Attachment',help="Pièce jointe associée")
     # displayed_image_id=fields.Many2one('mrp.document','Image displayed',ondelete='set null',help="Afficher l'image")
-    effectivity=fields.Selection([('asap','Asap'),('date','to date')],'Date effective',help="Entrée en vigueur")
-    effectivity_date=fields.Date(string="Date d'entrée en vigueur")
-    has_approval = fields.Integer('Has approval',readonly=True,compute='_compute_has_approval')
-    kanban_state=fields.Selection([('waiting','Waiting start revision'), ('none','Not needed') ,('normal','Normal'),('done','Done'),('blocked','Blocked')],'Kanban State',compute='_compute_kanban_state',help="État kanban",store=True)
     # message_attachment_count=fields.Integer(readonly=True, string="Nombre de pièces jointes")
     # message_channel_ids=fields.Many2many('mail.channel',readonly=True,string="Abonnés (Canaux)")
     # message_follower_ids=fields.One2many('mail.followers','res_id',help="Abonnés")
@@ -43,24 +29,58 @@ class Plm(models.Model):
     # message_unread_counter=fields.Integer(readonly=True,string="Compteur de messages non lus")
     # mrp_document_count=fields.Integer(readonly=True,string="Nb. pièces jointes")
     # mrp_document_ids=fields.One2many('mrp.document','res_id',help="Pièces jointes")
-    name=fields.Char(required=True,string="Référence")
     # new_bom_id=fields.Many2one('mrp.bom',ondelete='set null',help="Nouvelles nomenclatures")
     # new_bom_revision=fields.Integer(string="Révision de la nomenclature")
-    note=fields.Text(string='Internal Notes')
     # previous_change_ids=fields.One2many('mrp.plm.bom.change','eco_rebase_id',readonly=True, help="Anciennes modifications de l'OMT")
     # priority = fields.Selection([('0', 'Normal'),('1', 'Important'),], default='0', index=True, help="Priority")
-    product_tmpl_id = fields.Many2one('product.template', 'Product Template',auto_join=True, ondelete="set null")
     # routing_change_ids=fields.One2many('mrp.plm.routing.change','eco_id',readonly=True,help="Modifications de l'acheminement OMT")
-    stage_id=fields.Many2one('mrp.plm.stage',ondelete='restrict',help="Etape",group_expand='_read_group_stage_names')
-    state=fields.Selection([('confirmed','Confirmed'),('progress','Progress'),('rebase','Rebase'),('conflict','Conflict'),('done','Done')],'Status',required=True,help="Statut",tracking=True)
     # tag_ids=fields.Many2many('mrp.plm.tag','Tag',string="Étiquettes")
-    tag_ids = fields.Many2many('mrp.plm.tag', 'mrp_plm_tags_rel', 'plm_id', 'tag_id', string='Tags')
     # type=fields.Selection([()],'Appliqué sur',required=True,help="Appliqué sur")
+    # website_message_ids=fields.One2many('mail.message','res_id',help="Messages du site web")
+   
+    active=fields.Boolean('Active', default=True, help="Si le champ actif est défini sur False, vous pourrez masquer l'ordre de modification technique sans le supprimer.")
+    allow_apply_change=fields.Boolean("Afficher les modifications appliquées",compute='_compute_allow_apply_change')
+    allow_change_stage=fields.Boolean(compute='_compute_allow_change_state', string="Autoriser le changement d'étape")
+    allow_start_revision=fields.Boolean(compute='_compute_can_start_revision')
+    approval_ids=fields.One2many('mrp.plm.approval','eco_id',help="Validations")
+    color = fields.Integer('Couleur')
+    effectivity=fields.Selection([('asap','Asap'),('date','to date')],'Date effective',help="Entrée en vigueur")
+    effectivity_date=fields.Date(string="Date d'entrée en vigueur")
+    has_approval = fields.Integer('Has approval',readonly=True,compute='_compute_has_approval')
+    
+    name=fields.Char(required=True,string="Référence")
+    note=fields.Text(string='Internal Notes')
+    product_tmpl_id = fields.Many2one('product.template', 'Product Template',auto_join=True, ondelete="set null")
+    stage_id=fields.Many2one('mrp.plm.stage',
+        ondelete='restrict',
+        help="Etape",
+        compute='_compute_stage_id',
+        group_expand='_read_group_stage_names',
+        index=True, tracking=True,copy=False,readonly=False, store=True,
+        domain="[ ('type_id', '=', type_id)]"
+        )
+    kanban_state_label = fields.Char(compute='_compute_kanban_state_label', string='Kanban State Label', tracking=True)
+    kanban_state=fields.Selection(
+        # [('waiting','Waiting start revision'), ('none','Not needed') ,('normal','Normal'),('done','Done'),('blocked','Blocked')],
+        ('normal', 'Grey'),
+        ('done', 'Green'),
+        ('blocked', 'Red'),
+        string= 'Kanban State',
+        default='normal',
+        # compute='_compute_kanban_state',
+        help="État kanban",store=True)
+    state=fields.Selection(
+        [('draft','Draft'),('confirmed','Confirmed'),('done','Done'),('rejected','Rejected')],
+        string='State',
+        default='draft',
+        copy=False,readonly=True, required=True,help="Statut",tracking=True,store=True
+        )
+        
+    tag_ids = fields.Many2many('mrp.plm.tag', 'mrp_plm_tags_rel', 'plm_id', 'tag_id', string='Tags')
     type_id=fields.Many2one('mrp.plm.type','Type',ondelete='restrict',required=True,help="Type",store=True)
     user_can_approve=fields.Boolean("Peut Approuver",compute='_compute_user_can_approve')
     user_can_reject=fields.Boolean("Peut Refuser",compute='_compute_user_can_reject')
     user_id=fields.Many2one('res.users','Responsable',ondelete='set null',help="responsable")
-    # website_message_ids=fields.One2many('mail.message','res_id',help="Messages du site web")
     can_purchase=fields.Boolean("Peut acheter",default=False)
     can_manufacture=fields.Boolean("Peut Produire",default=False)
     can_deliver=fields.Boolean("Peut Livrer",default=False)
@@ -69,15 +89,41 @@ class Plm(models.Model):
     is_sale=fields.Boolean(store=False)
     is_purchase=fields.Boolean(store=False)
 
+    def write(self, vals):
+        # Overridden to reset the kanban_state to normal whenever
+        # the stage (stage_id) of the Maintenance Request changes.
+        if vals and 'kanban_state' not in vals and 'stage_id' in vals:
+            vals['kanban_state'] = 'normal'
+
     @api.model
     def _read_group_stage_names(self, stages, domain, order):
-        stages_ids = stages.search([])
+        search_domain = [ ('id', 'in', stages.ids)]
+        stages_ids = stages.search(search_domain)
         return stages_ids
 
     @api.depends('state')
     def _compute_allow_change_state(self):
         for record in self:
             record.allow_change_stage= record.state!='confirmed'
+
+    @api.depends( 'type_id')
+    def _compute_stage_id(self):
+        for record in self:
+            if not record.stage_id:
+                record.stage_id = record._stage_find(domain=[('fold', '=', False)]).id
+
+    def _stage_find(self,  domain=None, order='sequence'):
+        """ Determine the stage of the current lead with its teams, the given domain and the given team_id
+            :param team_id
+            :param domain : base search domain for stage
+            :returns crm.stage recordset
+        """
+        search_domain=[]
+        # AND with the domain in parameter
+        if domain:
+            search_domain += list(domain)
+        # perform search, return the first found
+        return self.env['mrp.plm.stage'].search(search_domain, order=order, limit=1)           
 
     def _compute_allow_apply_change(self):
         for record in self:
@@ -111,6 +157,16 @@ class Plm(models.Model):
             else:
                 record.user_can_reject=False
 
+    @api.depends('stage_id', 'kanban_state')
+    def _compute_kanban_state_label(self):
+        for record in self:
+            if record.kanban_state == 'normal':
+                record.kanban_state_label = _('Progress')
+            elif record.kanban_state == 'blocked':
+                record.kanban_state_label = _('Blocked')
+            else:
+                record.kanban_state_label = _('Done')
+
     @api.depends('stage_id','state')
     def _compute_kanban_state(self):
         for record in self:
@@ -126,10 +182,10 @@ class Plm(models.Model):
                     if candidate.is_rejected:
                         record.kanban_state='blocked'
                         break
-                    if candidate.need_approval:
+                    if candidate.need_approval():
                         record.kanban_state='normal'
                         break
-                    if candidate.is_treated:
+                    if candidate.is_treated():
                         record.kanban_state='done'
                 continue
             # if record.state=='done':
@@ -193,15 +249,23 @@ class Plm(models.Model):
         for record in self:
             if record.stage_id.id==record._origin.stage_id.id:
                 continue
-            if record._origin.stage_id.final_stage:
+            if can_go_back :
+                if record.stage_id.final_stage:
+                    record.state='done'
+                    record.write({'state':'done'})
+                else:
+                    record.state='confirmed'
+                    record.write({'state':'confirmed'})
+                continue
+            elif record._origin.stage_id.final_stage:
                 restore(record)
                 raise UserError("You cannot move a final staged modification")
-            if not can_go_back and record.stage_id.sequence<record._origin.stage_id.sequence:
+            if record.stage_id.sequence<record._origin.stage_id.sequence:
                 # record.stage_id=record._origin.stage_id
                 restore(record)
                 raise UserError("You cannot go back")
             
-            if record.need_approval(record._origin.stage_id):
+            if record.need_approval(record._origin.stage_id) and not record.stage_id.reject_stage:
                 # record.stage_id=record._origin.stage_id
                 restore(record)
                 raise UserError("An approval is needed")

@@ -11,7 +11,7 @@ class PlmStage(models.Model):
     final_stage=fields.Boolean(string="Etape finale",compute='_compute_is_final_stage',readonly=True)
     effective_stage = fields.Boolean("Effective")
     reject_stage = fields.Boolean("Rejected")
-    folded=fields.Boolean(string="Replié en vue kanban")
+    fold=fields.Boolean(string="Replié en vue kanban")
     is_blocking=fields.Boolean(readonly=True,string="Etape de blocage")
     name=fields.Char(required=True, translate=True,string="Nom")
     sequence=fields.Integer(string="Séquence")

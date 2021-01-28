@@ -25,6 +25,10 @@
           <xpath expr="//group[@name='group_general']" position="inside">
             <!-- <field name="valtec" string="Technical valid" attrs="{'invisible': [('purchase_ok', '=', True)]}"/>-->
           </xpath>
+          <xpath expr="//*[@name='web_ribbon']" position="after">
+            <!-- <field name="valtec" string="Technical valid" attrs="{'invisible': [('purchase_ok', '=', True)]}"/>-->
+              <widget name="web_ribbon" title="ECO" bg_color="bg-warning" attrs="{'invisible': [('eco_count', '=', 0)]}"/>
+          </xpath>
         </data>
       </field>
     </record>
