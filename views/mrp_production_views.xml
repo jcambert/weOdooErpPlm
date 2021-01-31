@@ -1,0 +1,58 @@
+<?xml version="1.0"?>
+<odoo>
+    <data>
+        <record id="weaddon_mrp_production_form_view" model="ir.ui.view">
+            <field name="name">weOdooErpPlm.mrp_production.form</field>
+            <field name="model">mrp.production</field>
+            <field name="inherit_id" ref="mrp.mrp_production_form_view"/>
+            <field name="arch" type="xml">
+                <data>
+                    <xpath expr="//header" position="inside">
+                        <field name="eco_count" invisible='1'/>
+                        <field name="can_manufacture" invisible='1'/>
+                    </xpath>
+                    <xpath expr="//sheet/div[@name='button_box']" position="inside">
+                        <button class="oe_stat_button" name="action_view_plm" type="object" icon="fa-wrench" attrs="{'invisible': ['|',('can_manufacture', '=', True),('state','in',('draft','to_close','done','cancel'))]}">
+                            <field string="ECOs" name="eco_count" widget="statinfo"></field>
+                        </button>
+                    </xpath>
+
+                    <xpath expr="//sheet/div[@name='button_box']" position="after">
+                        <widget name="web_ribbon" title="ECO" bg_color="bg-warning" attrs="{'invisible': ['|',('can_manufacture', '=', True),('state','in',('draft','to_close','done','cancel'))]}"/>
+                    </xpath>
+                </data>
+            </field>
+        </record>
+
+
+        <record id="weaddon_mrp_production_list_view" model="ir.ui.view">
+            <field name="name">weOdooErpPlm.mrp_production.list</field>
+            <field name="model">mrp.production</field>
+            <field name="inherit_id" ref="mrp.mrp_production_tree_view"/>
+            <field name="arch" type="xml">
+                <data>
+
+                    <xpath expr="//field[@name='state']" position="after">
+                        <field name="can_manufacture" invisible='1'/>
+                        <field name="eco_count" optional="show" widget="badge" decoration-success="can_manufacture == True" decoration-danger="can_manufacture == False"/>
+                    </xpath>
+                </data>
+            </field>
+        </record>
+
+        <record id="weaddon_mrp_production_kanban_view" model="ir.ui.view">
+            <field name="name">weOdooErpPlm.mrp_production.kanban</field>
+            <field name="model">mrp.production</field>
+            <field name="inherit_id" ref="mrp.mrp_production_kanban_view"/>
+            <field name="arch" type="xml">
+                <data>
+                    <xpath expr="//div[@class='oe_kanban_bottom_right']" position="inside">
+                        <div class="float-left mr4">
+                            <field name="kanban_state" widget="state_selection" />
+                        </div>
+                    </xpath>
+                </data>
+            </field>
+        </record>
+    </data>
+</odoo>

@@ -36,6 +36,7 @@
         'views/mrp_plm_views.xml',
         'views/product_views.xml',
         'views/mrp_plm_settings_views.xml',
+        'views/mrp_production_views.xml',
         'report/plm_report_views_main.xml',
         'report/plm_production_templates.xml'
     ],

@@ -11,7 +11,7 @@ class PlmApprovalTemplate(models.Model):
         ('mandatory','Mandatory'),
         ('comment','Comment')],required=True,string="Type de validation")
     display_name=fields.Char(readonly=True,string="Nom affiché")
-    # name=fields.Char(required=True,string="Rôle")
+    
     roles=fields.Many2one('res.users.role',string="Roles")
     stage_id=fields.Many2one('mrp.plm.stage',ondelete='restrict',string="Etape")
-    # user_ids=fields.Many2many('res.users',string="Utilisateurs")
+    

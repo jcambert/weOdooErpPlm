@@ -13,14 +13,15 @@
                 <field name="is_purchase" invisible="1"/>
                 <field name="is_sale" invisible="1"/>
                 <field name="allow_change_stage" invisible="1" />
-                <field name="allow_start_revision" invisible="1" />
+                <!-- <field name="allow_start_revision" invisible="1" /> -->
                 <field name="has_approval" invisible="1" />
-                
+                <field name="can_start_revision" invisible="1" />
                 <header>
-                    <field name="stage_id" widget="statusbar" options="{'clickable': '1'}" attrs="{'invisible': ['|',('active', '=', False),('allow_change_stage', '=', False)]}"/>
-                    <button string="Start New Revision" name="action_new_revision" type="object" class="oe_highlight" attrs="{'invisible': [('allow_start_revision', '=', False)]}"/>
+                    <field name="stage_id" widget="statusbar" options="{'clickable': '1'}" attrs="{'invisible': ['|',('state', '=', 'draft'),('allow_change_stage', '=', False)]}"/>
+                    <button string="Start New Revision" name="action_new_revision" type="object" class="oe_highlight" attrs="{'invisible': [('state', '!=', 'draft')]}"/>
                     <button string="Approve" name="action_approve" type="object" class="oe_highlight" attrs="{'invisible': ['|',('user_can_approve', '=', False),('allow_change_stage', '=', False)]}"/>
                     <button string="Reject" name="action_reject" type="object" class="oe_highlight" attrs="{'invisible': ['|',('user_can_reject', '=', False),('allow_change_stage', '=', False)]}"/>
+                    
                 </header>
                 <sheet>
 
@@ -30,13 +31,12 @@
                             <field name="active" widget="boolean_toggle" />
                         </button>
                     </div>
-                    <!-- <field name="kanban_state" widget="state_selection"/> -->
-                   
+
+
+                    <field name="kanban_state" widget="state_selection" class="ml-auto float-right"/>
                     
-                    <field name="kanban_state" widget="state_selection" class="ml-auto float-right"/> 
-                    
-                    
-                     <div class="oe_title">
+
+                    <div class="oe_title">
                         <label for="name" string="Short Summary" class="oe_edit_only"/>
                         <h2>
                             <field name="name" attrs="{'readonly': [('state', '=', 'done')]}"/>
@@ -44,9 +44,9 @@
                     </div>
                     <group>
                         <group>
-                            <field name="type_id" widget="selection" attrs="{'readonly': [('state', '!=', 'confirmed')]}"/>
+                            <field name="type_id" widget="selection" attrs="{'readonly': [('state', '!=', 'draft')]}"/>
                             <!-- <field name="type" widget="radio" attrs="{'readonly': [('state', '!=', 'confirmed')]}"/> -->
-                            <field name="product_tmpl_id" domain="[('type', 'in', ['consu', 'product'])]" attrs="{'readonly': [('state', '!=', 'confirmed')]}"/>
+                            <field name="product_tmpl_id" domain="[('type', 'in', ['consu', 'product']),('sale_ok','=',True)]" attrs="{'readonly': [('state', '!=', 'draft')]}"/>
                             <field name="can_purchase" attrs="{'invisible':[('is_purchase','=',False)]}"/>
                             <field name="can_receive" attrs="{'invisible':[('is_purchase','=',False)]}"/>
                             <field name="can_manufacture" attrs="{'invisible':[('is_sale','=',False)]}"/>
@@ -151,7 +151,7 @@
                             </div>
                             <div class="oe_kanban_content">
                                 <div class="o_kanban_record_title">
-                                    
+
                                     <field name="name"/>
                                 </div>
                                 <div>
@@ -173,17 +173,24 @@
                                 </div>
                             </div>
                             <div class="o_kanban_record_bottom">
-                                <!-- <div class="oe_kanban_bottom_left">
-                                    <field name="priority" widget="priority"/>
-                                </div> -->
                                 <div class="oe_kanban_bottom_right">
                                     <div class="float-left mr4" groups="base.group_user">
                                         <field name="activity_ids" widget="kanban_activity"/>
-                                        <span t-if="record.kanban_state.raw_value == 'waiting'" class="o_status o_status_red" title="Waiting starting revision" role="img" aria-label="Waiting starting revision"/>
-                                        <span t-if="record.kanban_state.raw_value == 'none'" class="o_status o_status_green" title="No Approval need" role="img" aria-label="No approval is needed"/>
-                                        <span t-if="record.kanban_state.raw_value == 'normal'" class="o_status o_status_grey" title="Waiting for Approvals" role="img" aria-label="Waiting for Approvals"/>
-                                        <span t-if="record.kanban_state.raw_value == 'done'" class="o_status o_status_green" title="All Approvals have be done" role="img" aria-label="All Approvals have be done"/>
-                                        <span t-if="record.kanban_state.raw_value == 'blocked'" class="o_status o_status_red" title="Someone rejected this change" role="img" aria-label="Someone rejected this change"/>
+                                        <field name="kanban_state" invisible="1" />
+                                        <field name="state" invisible="1"/>
+                                        <t t-if="record.state.raw_value=='draft'">
+                                            <span class="o_status o_status_red" title="Waiting starting revision" role="img" aria-label="Waiting starting revision"/>
+                                        </t>
+                                        <t t-elif="record.kanban_state.raw_value == 'normal'">
+                                            <span class="o_status o_status_grey" title="Waiting for new stage" role="img" aria-label="Waiting for Approvals"/>
+                                        </t>
+                                        <t t-elif="record.kanban_state.raw_value == 'done'">
+                                            <span class="o_status o_status_green" title="All stages have be done" role="img" aria-label="All Approvals have be done"/>
+                                        </t>
+                                        <t t-elif="record.kanban_state.raw_value == 'blocked'">
+                                            <span class="o_status o_status_red" title="A stage has been rejected" role="img" aria-label="Someone rejected this change"/>
+                                        </t>
+                                       
                                     </div>
                                     <field name="user_id" widget="many2one_avatar_user"/>
                                 </div>
@@ -223,8 +230,8 @@
             </pivot>
         </field>
     </record>
-    
-     <record id="mrp_plm_graph_view" model="ir.ui.view">
+
+    <record id="mrp_plm_graph_view" model="ir.ui.view">
         <field name="name">mrp.plm.graph.view</field>
         <field name="model">mrp.plm</field>
         <field name="arch" type="xml">
@@ -235,7 +242,7 @@
             </graph>
         </field>
     </record>
-   
+
     <record id="mrp_plm_action" model="ir.actions.act_window">
         <field name="name">Modifications Techniques</field>
         <field name="res_model">mrp.plm</field>

@@ -13,3 +13,4 @@ from . import plm_erp
 # from . import plm_bom_change
 from . import plm_approval
 # from . import plm_routing_change
+from . import mrp_production
