@@ -17,21 +17,36 @@ class WeAddonProduct(models.Model):
     can_manufacture=fields.Boolean(compute='_compute_eco_count',readonly=True,store=True,required=True,default=True)
     can_deliver=fields.Boolean(compute='_compute_eco_count',readonly=True,store=True,required=True,default=True)
     can_receive=fields.Boolean(compute='_compute_eco_count',readonly=True,store=True,required=True,default=True)
+    can_planned=fields.Boolean(compute='_compute_eco_count',readonly=True,store=True,required=True,default=True)
     @api.model
     def default_get(self, fields):
         defaults = super(WeAddonProduct, self).default_get(fields)
         # defaults['eco_count']=10
         return defaults
 
-    @api.depends('plm.stage_id')
+    @api.depends('plm.stage_id','plm.can_planned','plm.can_purchase','plm.can_manufacture','plm.can_deliver','plm.can_receive')
     def _compute_eco_count(self):
+        _can_purchase=lambda c:c.can_purchase
+        _can_manufacture=lambda c:c.can_manufacture
+        _can_deliver=lambda c:c.can_deliver
+        _can_receive=lambda c:c.can_receive
+        _can_planned=lambda c:c.can_planned
         for record in self:
-            record.eco_count= self.plm.search_count([('state','!=','done')])
+            
+            eco=self.plm.search([('product_tmpl_id','=',record.id), ('state','!=','done')])
+            record.eco_count= len(eco.ids)
+            # record.plm.search_count([('id','=',record.id), ('state','!=','done')])
             if record.eco_count>0:
-                record.can_purchase = self.plm.search_count([('state','!=','done'),('can_purchase','=',True)])>0
-                record.can_manufacture = self.plm.search_count([('state','!=','done'),('can_manufacture','=',True)])>0 
-                record.can_deliver = self.plm.search_count([('state','!=','done'),('can_deliver','=',True)])>0 
-                record.can_receive = self.plm.search_count([('state','!=','done'),('can_receive','=',True)])>0 
+                record.can_purchase = len(eco.filtered(_can_purchase))>0
+                # record.plm.search_count([('state','!=','done'),('can_purchase','=',True)])>0
+                record.can_manufacture =len(eco.filtered(_can_manufacture))>0
+                #  record.plm.search_count([('state','!=','done'),('can_manufacture','=',True)])>0 
+                record.can_deliver =len(eco.filtered(_can_deliver))>0
+                #  record.plm.search_count([('state','!=','done'),('can_deliver','=',True)])>0 
+                record.can_receive =len(eco.filtered(_can_receive))>0
+                #  record.plm.search_count([('state','!=','done'),('can_receive','=',True)])>0 
+                record.can_planned= len(eco.filtered(_can_planned))>0
+                #  record.plm.search_count([('state','!=','done'),('can_planned','=',True)])>0 
             else:
                 record.can_purchase = True
                 record.can_manufacture =True

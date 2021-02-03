@@ -81,6 +81,7 @@ class Plm(models.Model):
     user_can_approve=fields.Boolean("Peut Approuver",compute='_compute_user_can_approve')
     user_can_reject=fields.Boolean("Peut Refuser",compute='_compute_user_can_approve')
     user_id=fields.Many2one('res.users','Responsable',ondelete='set null',help="responsable")
+    can_planned=fields.Boolean('Can be planned for manufacture',default=False)
     can_purchase=fields.Boolean("Peut acheter",default=False)
     can_manufacture=fields.Boolean("Peut Produire",default=False)
     can_deliver=fields.Boolean("Peut Livrer",default=False)
@@ -134,7 +135,7 @@ class Plm(models.Model):
     def _compute_can_start_revision(self):
         for record in self:
             # record.allow_start_revision=
-            record.can_start_revision = (record.state=='draft' and isinstance(record.id,models.NewId))
+            record.can_start_revision = (record.state=='draft' and record.create_date!=False)
 
     @api.depends('state','stage_id')
     def _compute_user_can_approve(self):
@@ -257,6 +258,8 @@ class Plm(models.Model):
             record.stage_id=record._origin.stage_id
         
         for record in self:
+            if record.create_date==False:
+                continue
             if record.state in ['draft']:
                 restore(record)
                 raise UserError("You cannot change step when modification is in draft mode")
@@ -292,8 +295,9 @@ class Plm(models.Model):
                 # record.update({'state':'done'})
     @api.model
     def need_approval(self,stage_id):
+        self.ensure_one()
         result=True
-        candidates=self.approval_ids.search([('template_stage_id','=',stage_id.id)])
+        candidates=self.approval_ids.filtered(lambda c:c.template_stage_id.id==stage_id.id)
         if candidates.exists():
             for candidate in candidates:
                 result=candidate.need_approval() and result
@@ -304,7 +308,7 @@ class Plm(models.Model):
         # raise UserError("You can't do that!")
         # return
         record=self
-        if isinstance(self.id, models.NewId):
+        if record.state not in ['draft']:
             return False
         print('start new Revision')
         # record.update(state='confirmed')
@@ -326,7 +330,11 @@ class Plm(models.Model):
         return record.write({'state':'confirmed'})
     def _get_first_approval_can_approve(self):
         me=self.env.user
-        candidates = self.approval_ids.search([('template_stage_id','=',self.stage_id.id)])
+        def filter(c):
+            return c.template_stage_id.id==self.stage_id.id
+        # candidates = self.approval_ids.filtered([('template_stage_id','=',self.stage_id.id)])
+        # candidates = self.approval_ids.filtered(lambda c:c.template_stage_id==self.stage_id.id)
+        candidates = self.approval_ids.filtered(filter)
         if not candidates.exists():
             return None
         
@@ -337,7 +345,9 @@ class Plm(models.Model):
                     return candidate
         return None
         
+    
     def action_approve(self):
+        self.ensure_one()
         candidate=self._get_first_approval_can_approve()
         if candidate is not None:
             candidate.approve()

@@ -1,6 +1,6 @@
 <?xml version="1.0"?>
 <odoo>
-   <record id="mrp_plm_stage_list_view" model="ir.ui.view">
+    <record id="mrp_plm_stage_list_view" model="ir.ui.view">
         <field name="name">mrp.plm.stage.list.view</field>
         <field name="model">mrp.plm.stage</field>
         <field name="arch" type="xml">
@@ -44,15 +44,10 @@
             </form>
         </field>
     </record>
-     <record id="mrp_plm_config_stage_action" model="ir.actions.act_window">
+    <record id="mrp_plm_config_stage_action" model="ir.actions.act_window">
         <field name="name">PLM Stages</field>
         <field name="res_model">mrp.plm.stage</field>
         <field name="view_mode">tree,form</field>
     </record>
-    <menuitem 
-            id="menu_mrp_plm_config_stage"
-            action="mrp_plm_config_stage_action"
-            parent="menu_mrp_plm_configuration"
-            name="Stage"
-            sequence="2"/>
+    <menuitem id="menu_mrp_plm_config_stage" action="mrp_plm_config_stage_action" parent="menu_mrp_plm_configuration" name="Stage" sequence="2"/>
 </odoo>

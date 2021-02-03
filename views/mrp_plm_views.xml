@@ -18,7 +18,7 @@
                 <field name="can_start_revision" invisible="1" />
                 <header>
                     <field name="stage_id" widget="statusbar" options="{'clickable': '1'}" attrs="{'invisible': ['|',('state', '=', 'draft'),('allow_change_stage', '=', False)]}"/>
-                    <button string="Start New Revision" name="action_new_revision" type="object" class="oe_highlight" attrs="{'invisible': [('state', '!=', 'draft')]}"/>
+                    <button string="Start New Revision" name="action_new_revision" type="object" class="oe_highlight" attrs="{'invisible': [('can_start_revision', '=', False)]}"/>
                     <button string="Approve" name="action_approve" type="object" class="oe_highlight" attrs="{'invisible': ['|',('user_can_approve', '=', False),('allow_change_stage', '=', False)]}"/>
                     <button string="Reject" name="action_reject" type="object" class="oe_highlight" attrs="{'invisible': ['|',('user_can_reject', '=', False),('allow_change_stage', '=', False)]}"/>
                     
@@ -46,11 +46,12 @@
                         <group>
                             <field name="type_id" widget="selection" attrs="{'readonly': [('state', '!=', 'draft')]}"/>
                             <!-- <field name="type" widget="radio" attrs="{'readonly': [('state', '!=', 'confirmed')]}"/> -->
-                            <field name="product_tmpl_id" domain="[('type', 'in', ['consu', 'product']),('sale_ok','=',True)]" attrs="{'readonly': [('state', '!=', 'draft')]}"/>
+                            <field name="product_tmpl_id" domain="[('type', 'in', ['consu', 'product']),('purchase_ok','=',False)]" attrs="{'readonly': [('state', '!=', 'draft')]}"/>
+                            <field name="can_planned" attrs="{'invisible':[('is_purchase','=',True)]}"/>
                             <field name="can_purchase" attrs="{'invisible':[('is_purchase','=',False)]}"/>
                             <field name="can_receive" attrs="{'invisible':[('is_purchase','=',False)]}"/>
-                            <field name="can_manufacture" attrs="{'invisible':[('is_sale','=',False)]}"/>
-                            <field name="can_deliver" attrs="{'invisible':[('is_sale','=',False)]}"/>
+                            <field name="can_manufacture" attrs="{'invisible':[('is_purchase','=',True)]}"/>
+                            <field name="can_deliver" attrs="{'invisible':[('is_purchase','=',True)]}"/>
                             <!-- <field name="bom_id" context="{'default_product_tmpl_id': product_tmpl_id}" attrs="{'readonly': [('state', '!=', 'confirmed')], 'invisible': [('type', 'in', ('routing', 'product'))], 'required': [('type', 'in', ('bom', 'both'))]}"/>
                             <field name="new_bom_id" invisible="1"/>
                             <field name="company_id" groups="base.group_multi_company"/> -->
