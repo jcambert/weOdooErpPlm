@@ -19,5 +19,13 @@
         "**/CVS": true,
         "**/.DS_Store": true,
         "**/.pyc":true
-    }
+    },
+    "python.analysis.extraPaths": [
+        "${workspaceRoot}/../odoo/addons",
+        "${workspaceRoot}/../odoo",
+        "${workspaceRoot}/../odoo/extra-addons",
+        "/mnt/c/Users/jc.ambert/odoo",
+        "/mnt/c/Users/jc.ambert/odoo/addons",
+        "/mnt/c/Users/jc.ambert/odoo/extra-addons"
+    ]
 }

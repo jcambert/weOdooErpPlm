@@ -125,7 +125,8 @@ class Plm(models.Model):
         if domain:
             search_domain += list(domain)
         # perform search, return the first found
-        return self.env['mrp.plm.stage'].search(search_domain, order=order, limit=1)           
+        result= self.env['mrp.plm.stage'].search(search_domain, order=order, limit=1)           
+        return result
 
     def _compute_allow_apply_change(self):
         for record in self:
@@ -257,10 +258,8 @@ class Plm(models.Model):
         def restore(record):
             record.stage_id=record._origin.stage_id
         
-        for record in self:
-            if record.create_date==False:
-                continue
-            if record.state in ['draft']:
+        for record in self.filtered(lambda r:r._origin.state!=False):
+            if record.state in ['draft'] :
                 restore(record)
                 raise UserError("You cannot change step when modification is in draft mode")
             # if  isinstance(record.id,models.NewId ) or record.stage_id.id==record._origin.stage_id.id :

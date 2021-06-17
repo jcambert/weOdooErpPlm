@@ -59,7 +59,7 @@
                             <div class="container o_kanban_card_content">
                                 <div class="row">
                                     <div class="col-6 o_kanban_primary_left">
-                                        <button class="btn btn-primary" name="450" type="action">
+                                        <button class="btn btn-primary" name="action_engineering_change" type="object">
                                             <span>
                                                 <t t-esc="record.nb_ecos.value"/>
                                                  Engineering Changes</span>
@@ -68,7 +68,7 @@
                                     <div class="col-6 o_kanban_primary_right">
                                         <div t-if="record.nb_approvals_my.raw_value> 0" class="row">
                                             <div class="col-9">
-                                                <a class="oe_kanban_stock_picking_type_list" name="451" type="action">
+                                                <a class="oe_kanban_stock_picking_type_list" name="action_my_validation" type="object">
                                                     My Validations
                                                 </a>
                                             </div>
@@ -79,7 +79,7 @@
 
                                         <div t-if="record.nb_approvals.raw_value > 0" class="row">
                                             <div class="col-9">
-                                                <a class="oe_kanban_stock_picking_type_list" name="452" type="action">
+                                                <a class="oe_kanban_stock_picking_type_list" name="action_all_validations" type="object">
                                                     All Validations
                                                 </a>
                                             </div>
@@ -89,7 +89,7 @@
                                         </div>
                                         <div t-if="record.nb_validation.raw_value > 0" class="row">
                                             <div class="col-9">
-                                                <a class="oe_kanban_stock_picking_type_list" name="453" type="action">
+                                                <a class="oe_kanban_stock_picking_type_list" name="action_to_apply" type="object">
                                                     To Apply
                                                 </a>
                                             </div>

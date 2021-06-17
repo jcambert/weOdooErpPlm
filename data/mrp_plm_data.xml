@@ -19,35 +19,35 @@
 
         <record id="stage_1" model="mrp.plm.stage">
             <field name="sequence" eval="1" />
-            <field name="name">New</field>
+            <field name="name">Nouveau</field>
             <field name="type_id">1</field>
         </record>
         <record id="stage_2" model="mrp.plm.stage">
             <field name="sequence" eval="2" />
-            <field name="name">In progress</field>
+            <field name="name">En Cours</field>
             <field name="type_id">1</field>
         </record>
         <record id="stage_3" model="mrp.plm.stage">
             <field name="sequence" eval="3" />
-            <field name="name">Validated</field>
+            <field name="name">Validation</field>
             <field name="type_id">1</field>
         </record>
         <record id="stage_4" model="mrp.plm.stage">
             <field name="sequence" eval="4" />
-            <field name="name">Effective</field>
+            <field name="name">Effectif</field>
             <field name="type_id">1</field>
             <field name="effective_stage">True</field>
         </record>
         <record id="stage_5" model="mrp.plm.stage">
             <field name="sequence" eval="5" />
-            <field name="name">Rejected</field>
+            <field name="name">Rejecté</field>
             <field name="type_id">1</field>
             <field name="fold">True</field>
             <field name="reject_stage">True</field>
         </record>
 
         <record id="tag_1" model="mrp.plm.tag">
-            <field name="name">Todo</field>
+            <field name="name">A Faire</field>
             <field name="color">1</field>
         </record>
 
