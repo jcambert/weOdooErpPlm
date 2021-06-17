@@ -31,8 +31,9 @@
       <field name="inherit_id" ref="stock.product_template_form_view_procurement_button"/>
       <field name="arch" type="xml">
         <data>
-          <xpath expr="//header/button[@name='198']" position="replace">
-            <button string="Replenish" type="action" name="198" context="{'default_product_tmpl_id': id}" groups="stock.group_stock_user" attrs="{'invisible': ['|',('type', '!=', 'product'),('eco_count', '>', 0)]}"/>
+          <xpath expr="//header" position="replace">
+            <button string="Update Quantity" name="action_update_quantity_on_hand" type="object" groups="stock.group_stock_manager"  attrs="{'invisible': [('type', '!=', 'product')]}"/>
+            <button string="Replenish" name="stock.action_product_replenish" type="action" context="{'default_product_tmpl_id': id}" groups="stock.group_stock_user" attrs="{'invisible': ['|',('type', '!=', 'product'),('eco_count', '>', 0)]}"/>
           </xpath>
         </data>
       </field>
