@@ -17,19 +17,20 @@
                 <field name="has_approval" invisible="1" />
                 <field name="can_start_revision" invisible="1" />
                 <header>
-                    <field name="stage_id" widget="statusbar" options="{'clickable': '1'}" attrs="{'invisible': ['|',('state', '=', 'draft'),('allow_change_stage', '=', False)]}"/>
                     <button string="Start New Revision" name="action_new_revision" type="object" class="oe_highlight" attrs="{'invisible': [('state', '!=', 'draft')]}"/>
                     <button string="Approve" name="action_approve" type="object" class="oe_highlight" attrs="{'invisible': ['|',('user_can_approve', '=', False),('allow_change_stage', '=', False)]}"/>
                     <button string="Reject" name="action_reject" type="object" class="oe_highlight" attrs="{'invisible': ['|',('user_can_reject', '=', False),('allow_change_stage', '=', False)]}"/>
+                    <!-- <field name="stage_id" widget="statusbar"  statusbar_visible="draft,in_progress,open,done" options="{'clickable': '1'}" attrs="{'invisible': [('allow_change_stage', '=', False)]}"/> -->
+                    <field name="stage_id" widget="statusbar" options="{'clickable': '1'}" />
                     
                 </header>
                 <sheet>
 
                     <widget name="web_ribbon" title="Archived" bg_color="bg-danger" attrs="{'invisible': [('active', '=', True)]}"/>
                     <div class="oe_button_box" name="button_box">
-                        <button name="toggle_active" type="object" class="oe_stat_button" icon="fa-archive">
+                        <!-- <button name="toggle_active" type="object" class="oe_stat_button" icon="fa-archive">
                             <field name="active" widget="boolean_toggle" />
-                        </button>
+                        </button> -->
                     </div>
 
 

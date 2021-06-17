@@ -45,4 +45,12 @@ class PlmType(models.Model):
     def _compute_nb_validation(self):
         for record in self:
             record.nb_validation=4
-    
+
+    def action_engineering_change(self):
+        pass
+    def action_my_validation(self):
+        pass
+    def action_all_validations(self):
+        pass
+    def action_to_apply(self):
+        pass
