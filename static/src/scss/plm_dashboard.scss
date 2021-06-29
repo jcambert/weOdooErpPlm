@@ -1,0 +1,8 @@
+.o_kanban_view.o_kanban_dashboard.o_plm_kanban {
+    .oe_plm_kanban_global_click>a:first-child{
+        visibility: hidden;
+    }
+    // .oe_plm_kanban_global_click{
+    //     background-color: darkcyan;
+    // }
+}

@@ -18,31 +18,35 @@
     'category': 'Productivity',
     'version': '1.0',
     # any module necessary for this one to work correctly
-    'depends': ['base','mrp','product', 'mail', 'uom'],
+    'depends': ['base','mrp','product','sale', 'mail', 'uom'],
 
     # always loaded
     'data': [
         'security/plm_security.xml',
         'security/ir.model.access.csv',
         # 'data/ir_cron.xml',
-        'data/ir_module_category.xml',
-        'data/mrp_plm_data.xml',
+        # 'data/ir_module_category.xml',
+        # 'data/mrp_plm_data.xml',
+        'data/sequences.xml',
         'views/user.xml',
-        'views/role.xml',
-        'views/mrp_plm_views_menu.xml',
-        'views/mrp_plm_type_views.xml',
-        'views/mrp_plm_stage_views.xml',
-        'views/mrp_plm_tag_views.xml',
-        'views/mrp_plm_views.xml',
-        'views/product_views.xml',
-        'views/mrp_plm_settings_views.xml',
-        'views/mrp_production_views.xml',
-        'report/plm_report_views_main.xml',
-        'report/plm_production_templates.xml'
+        'views/__plm_views.xml',
+        # 'views/plm_assets.xml',
+        # 'views/role.xml',
+        # 'views/mrp_plm_views_menu.xml',
+        # 'views/new_mrp_plm_views.xml',
+        # 'views/mrp_plm_type_views.xml',
+        # 'views/mrp_plm_stage_views.xml',
+        # 'views/mrp_plm_tag_views.xml',
+        # 'views/mrp_plm_views.xml',
+        # 'views/product_views.xml',
+        # 'views/mrp_plm_settings_views.xml',
+        # 'views/mrp_production_views.xml',
+        # 'report/plm_report_views_main.xml',
+        # 'report/plm_production_templates.xml'
     ],
     'qweb': ['static/src/xml/*.xml'],
     # only loaded in demonstration mode
-    'demo': ['data/mrp_plm_demo.xml'],
+    # 'demo': ['data/mrp_plm_demo.xml'],
     
     #Module Installation
     'installable': True,

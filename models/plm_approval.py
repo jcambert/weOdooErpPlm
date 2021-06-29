@@ -1,12 +1,13 @@
 from odoo import models, fields, api
-class PlmApproval(models.Model):
-    _name="mrp.plm.approval"
+from .models import Model,INNER_MODELS
+class PlmApproval(Model):
+    _name=INNER_MODELS['approval']
     _description="Mrp Plm Validation "
     approval_date=fields.Datetime(string="Date de validation")
-    approval_template_id=fields.Many2one('mrp.plm.approval.template',ondelete='cascade',required=True,string="Modèle")
+    approval_template_id=fields.Many2one(INNER_MODELS['approval_tmpl'] ,ondelete='cascade',required=True,string="Modèle")
     # display_name=fields.Char(readonly=True,help="Nom affiché")
-    eco_id=fields.Many2one('mrp.plm','Technical Change',ondelete='cascade',required=True,help="Modification technique")
-    eco_stage_id=fields.Many2one('mrp.plm.stage',string="Étape OMT")
+    eco_id=fields.Many2one(INNER_MODELS['plm'] ,'Technical Change',ondelete='cascade',required=True,help="Modification technique")
+    eco_stage_id=fields.Many2one(INNER_MODELS['stage'],string="Étape OMT")
     is_approved=fields.Boolean("Is approved",compute='_compute_is_approved',readonly=True)
     is_closed=fields.Boolean("Is closed",compute='_compute_is_closed',store=True,readonly=True)
     is_rejected=fields.Boolean("Is rejected",compute='_compute_is_rejected',store=True,readonly=True)
@@ -19,7 +20,7 @@ class PlmApproval(models.Model):
         ('comment','Comment'),
         ('approved','Approved'),
         ('rejected','Rejected')],'Statut',required=True)
-    template_stage_id=fields.Many2one('mrp.plm.stage',string="Étape de validation")
+    template_stage_id=fields.Many2one(INNER_MODELS['stage'] ,string="Étape de validation")
     user_id=fields.Many2one('res.users','Approuvé par',ondelete='set null')
 
     @api.model

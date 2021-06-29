@@ -2,36 +2,41 @@
 # -*- coding: utf-8 -*-
 from odoo.exceptions import UserError, ValidationError
 from odoo import models, fields, api,_
-class PlmType(models.Model):
-    _name='mrp.plm.type'
-    _description = "Mrp Plm Type"
+from .models import Model,INNER_MODELS
+from .plm_task import DEFAULT_PLM_ID
+class PlmType(Model):
+    _name=INNER_MODELS['type'] 
+    _description = "Mrp Plm Task Stage"
+    _inherit=['sequence.mixin','archive.mixin']
+    _order="sequence,id"
 
-    # name=fields.Char('Name')
-    _inherit=['mrp.plm.seq','mrp.plm.tag']
-    # _inherit=['mrp.plm.seq','mrp.plm.tag','mail.alias.mixin']
-    # message_attachment_count=fields.Integer(readonly=True,string="Nombre de pièces jointes")
-    # message_channel_ids=fields.Many2many('mail.channel',string="Abonnés (Canaux)")
-    # message_follower_ids=fields.One2many('mail.followers','res_id',string="Abonnés")
-    # message_has_error=fields.Boolean(string="Erreur d'envoi du message")
-    # message_has_error_counter=fields.Integer(readonly=True,string="Nombre d'erreurs")
-    # message_has_sms_error=fields.Boolean(readonly=True,string="Erreur d'envoi SMS")
-    # message_ids=fields.One2many('mail.message','res_id',string="Messages")
-    # message_is_follower=fields.Boolean(readonly=True, string="Est un abonné")
-    # message_main_attachment_id=fields.Many2one('ir.attachment',index=True,ondelete='set null',string="Pièce jointe principale")
-    # message_needaction=fields.Boolean(string="Nécessite une action")
-    # message_needaction_counter=fields.Integer(readonly=True,string="Nombre d'actions")
-    # message_partner_ids=fields.Many2many('res.partner')
+    def _get_default_plm_ids(self):
+        default_project_id = self.env.context.get(DEFAULT_PLM_ID)
+        return [default_project_id] if default_project_id else None
 
-    # message_unread=fields.Boolean(readonly=True,string="Messages non lus")
-    # message_unread_counter=fields.Integer(readonly=True,string="Compteur de messages non lus")
-
+    name = fields.Char(string='Stage Name', required=True)
+    description = fields.Text('Description')
+    plm_ids = fields.Many2many(INNER_MODELS['plm'], 'project_task_type_rel', 'type_id', 'plm_id', string='Projects',
+        default=_get_default_plm_ids)
     nb_approvals=fields.Integer(readonly=True,string="En attente de validation",compute='_compute_nb_approvals')
     nb_approvals_my=fields.Integer(readonly=True,string="En attente de ma validation",compute='_compute_nb_approvals_my')
     nb_ecos=fields.Integer(readonly=True,compute='_compute_nb_ecos')
     nb_validation=fields.Integer(readonly=True,string="À appliquer",compute='_compute_nb_validation')
-    stage_ids=fields.One2many('mrp.plm.stage','type_id',string="Etapes")
-    # website_message_ids=fields.One2many('mail.message','res_id',string="Messages du site web")
-
+    stage_ids=fields.One2many(INNER_MODELS['stage'],'type_id',string="Etapes")
+    legend_blocked = fields.Char(
+        'Red Kanban Label', default=lambda s: _('Blocked'), translate=True, required=True,
+        help='Override the default value displayed for the blocked state for kanban selection, when the task or issue is in that stage.')
+    legend_done = fields.Char(
+        'Green Kanban Label', default=lambda s: _('Ready'), translate=True, required=True,
+        help='Override the default value displayed for the done state for kanban selection, when the task or issue is in that stage.')
+    legend_normal = fields.Char(
+        'Grey Kanban Label', default=lambda s: _('In Progress'), translate=True, required=True,
+        help='Override the default value displayed for the normal state for kanban selection, when the task or issue is in that stage.')
+    tag_ids = fields.Many2many(INNER_MODELS['tag'] , 'mrp_plm_tags_rel', 'plm_id', 'tag_id', string='Tags')
+    fold = fields.Boolean(string='Folded in Kanban',
+        help='This stage is folded in the kanban view when there are no records in that stage to display.')
+    is_closed = fields.Boolean('Closing Stage', help="Tasks in this stage are considered as closed.")
+    
     def _compute_nb_approvals_my(self):
         for record in self:
             record.nb_approvals_my=1
@@ -45,4 +50,11 @@ class PlmType(models.Model):
     def _compute_nb_validation(self):
         for record in self:
             record.nb_validation=4
-    
+    def action_engineering_change(self):
+        pass
+    def action_my_validation(self):
+        pass
+    def action_all_validations(self):
+        pass
+    def action_to_apply(self):
+        pass

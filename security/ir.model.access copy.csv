@@ -1,0 +1,10 @@
+id,name,model_id/id,group_id/id,perm_read,perm_write,perm_create,perm_unlink
+access_res_users_role,access_res_users_role,model_res_users_role,"base.group_erp_manager",1,1,1,1
+access_res_users_role_line,access_res_users_role_line,model_res_users_role_line,"base.group_erp_manager",1,1,1,1
+mrp_plm_user_approval_tpl,mrp_plm_user,model_mrp_plm_approval_template,group_mrp_plm_user,1,1,1,1
+mrp_plm_user_approval,mrp_plm_user,model_mrp_plm_approval,group_mrp_plm_user,1,1,1,1
+mrp_plm_user_stage,mrp_plm_user,model_mrp_plm_stage,group_mrp_plm_user,1,1,1,1
+mrp_plm_user_tag,mrp_plm_user,model_mrp_plm_tag,group_mrp_plm_user,1,1,1,1
+mrp_plm_user_task,mrp_plm_user,model_mrp_plm_task,group_mrp_plm_user,1,1,1,1
+mrp_plm_user_type,mrp_plm_user,model_mrp_plm_type,group_mrp_plm_user,1,1,1,1
+mrp_plm_user,mrp_plm_user,model_mrp_plm,group_mrp_plm_user,1,1,1,1

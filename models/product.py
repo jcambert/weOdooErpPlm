@@ -1,8 +1,9 @@
 # -*- coding: utf-8 -*-
 
 from odoo import models, fields, api
-class WeAddonProduct(models.Model):
-    _inherit = ['product.template']
+from .models import Model,INNER_MODELS
+class WeAddonProduct(Model):
+    _inherit = [ INNER_MODELS['product_tmpl']]
     _description = 'Product Erp extensions'
     # valtec = fields.Boolean( default=True, help="If unchecked, it will allow you to disable launch manufacturing")
     state = fields.Selection(selection=[
@@ -11,7 +12,7 @@ class WeAddonProduct(models.Model):
         ('under_lifecycle_change','Under Lifecycle Change'),
          ('inactive', 'Deactivated')
     ],string='State',required=True,store=True,readonly=True,default='new')
-    plm=fields.One2many('mrp.plm','product_tmpl_id',help="PLM")
+    plm=fields.One2many(INNER_MODELS['plm'] ,'product_tmpl_id',help="PLM")
     eco_count=fields.Integer('Plm Count',compute='_compute_eco_count',store=True,required=True,default=0)
     can_purchase = fields.Boolean(compute='_compute_eco_count',readonly=True,store=True,required=True,default=True)
     can_manufacture=fields.Boolean(compute='_compute_eco_count',readonly=True,store=True,required=True,default=True)
@@ -33,7 +34,7 @@ class WeAddonProduct(models.Model):
         _can_planned=lambda c:c.can_planned
         for record in self:
             
-            eco=self.plm.search([('product_tmpl_id','=',record.id), ('state','!=','done')])
+            eco=self._plm.search([('product_tmpl_id','=',record.id), ('state','!=','done')])
             record.eco_count= len(eco.ids)
             # record.plm.search_count([('id','=',record.id), ('state','!=','done')])
             if record.eco_count>0:

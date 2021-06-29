@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
     <data>
-        <record id="type_0" model="mrp.plm.type">
+        <!-- <record id="type_0" model="mrp.plm.type">
             <field name="sequence" eval="1" />
             <field name="name">Introduction d'un nouveau produit</field>
             <field name="color">0</field>
@@ -49,7 +49,7 @@
         <record id="tag_1" model="mrp.plm.tag">
             <field name="name">A Faire</field>
             <field name="color">1</field>
-        </record>
+        </record> -->
 
         
     </data>

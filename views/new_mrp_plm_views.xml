@@ -1,0 +1,283 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- <record id="view_task_search_form" model="ir.ui.view">
+        <field name="name">mrp.plm.task.search.form</field>
+        <field name="model">mrp.plm.task</field>
+        <field name="arch" type="xml">
+            <search string="Tasks">
+                <field name="name" string="Task"/>
+                <field name="active" />
+                <field name="priority" />
+               
+                <filter string="Starred" name="starred" domain="[('priority', 'in', [1, 2])]"/>
+                <separator/>
+                <filter string="Archived" name="inactive" domain="[('active', '=', False)]"/>
+                <separator/>
+                <group expand="0" string="Group By">
+                    <filter string="Stage" name="stage" context="{'group_by': 'stage_id'}"/>
+                    <filter string="Plm" name="plm" context="{'group_by': 'plm_id'}"/>
+                </group>
+            </search>
+        </field>
+    </record> -->
+
+    <record id="act_project_project_2_project_task_all" model="ir.actions.act_window">
+        <field name="name">Tasks</field>
+        <field name="res_model">mrp.plm.task</field>
+        <!-- <field name="view_mode">kanban,tree,form,calendar,pivot,graph,activity</field> -->
+        <field name="view_mode">kanban,tree,form,</field>
+        <field name="domain">[('plm_id', '=', active_id)]</field>
+        <!-- <field name="context">{
+                'pivot_row_groupby': ['user_id'],
+                'default_plm_id': active_id,
+            }</field> -->
+        <field name="context">{
+            'default_plm_id': active_id,
+        }</field>
+        <!-- <field name="search_view_id" ref="view_task_search_form"/> -->
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                    No tasks found. Let's create one!
+            </p>
+            <p>
+                    To get things done, use activities and status on tasks.<br/>
+                    Chat in real time or by email to collaborate efficiently.
+            </p>
+        </field>
+    </record>
+    <!-- Plm Task Form View-->
+    <record id="view_task_form2" model="ir.ui.view">
+        <field name="name">mrp.plm.task.form</field>
+        <field name="model">mrp.plm.task</field>
+        <field eval="2" name="priority"/>
+        <field name="arch" type="xml">
+            <form string="Task" class="o_form_project_tasks">
+                <field name="is_closed" invisible="1" />
+                <header>
+                    <field name="stage_id" widget="statusbar" options="{'clickable': '1', 'fold_field': 'fold'}" attrs="{'invisible': [('plm_id', '=', False)]}"/>
+                </header>
+                <sheet string="Task">
+                    <div class="oe_button_box" name="button_box">
+
+                    </div>
+                    <widget name="web_ribbon" title="Archived" bg_color="bg-danger" attrs="{'invisible': [('active', '=', True)]}"/>
+                    <div class="oe_title pr-0">
+                        <h1 class="d-flex flex-row justify-content-between">
+                            <field name="priority" widget="priority" class="mr-3"/>
+                            <field name="name" class="o_task_name text-truncate" placeholder="Task Title..."/>
+                            <field name="kanban_state" widget="state_selection" class="ml-auto"/>
+                        </h1>
+                    </div>
+                    <group>
+                        <group>
+                            <field name="plm_id" required="1" domain="[('active', '=', True)]"/>
+
+                            <field name="tag_ids" widget="many2many_tags" options="{'color_field': 'color', 'no_create_edit': True}"/>
+                        </group>
+                        <group>
+                            <field name="active" invisible="1"/>
+
+                            <field name="legend_blocked" invisible="1"/>
+                            <field name="legend_normal" invisible="1"/>
+                            <field name="legend_done" invisible="1"/>
+                        </group>
+                    </group>
+                    <notebook>
+                        <page name="description_page" string="Description">
+                            <field name="description" type="html"/>
+                            <div class="d-none oe_clear"/>
+                        </page>
+
+                        <page name="extra_info" string="Extra Info" groups="base.group_no_one">
+                            <group>
+                                <group>
+                                    <field name="sequence" groups="base.group_no_one"/>
+
+                                </group>
+                            </group>
+                        </page>
+                    </notebook>
+                </sheet>
+
+            </form>
+        </field>
+    </record>
+    <!-- Plm Task Kanban View -->
+    <record model="ir.ui.view" id="view_task_kanban">
+        <field name="name">mrp.plm.task.kanban</field>
+        <field name="model">mrp.plm.task</field>
+        <field name="arch" type="xml">
+            <kanban default_group_by="stage_id" class="o_kanban_small_column o_kanban_project_tasks" on_create="quick_create" quick_create_view="project.quick_create_task_form" examples="project" js_class="project_kanban" sample="1">
+                <field name="color"/>
+                <field name="priority"/>
+                <field name="stage_id" options='{"group_by_tooltip": {"description": "Description"}}'/>
+
+                <field name="is_closed"/>
+                <field name="active"/>
+                <field name="legend_blocked"/>
+                <field name="legend_normal"/>
+                <field name="legend_done"/>
+                <progressbar field="kanban_state" colors='{"done": "success", "blocked": "danger", "normal": "muted"}'/>
+                <templates>
+                    <t t-name="kanban-box">
+                        <div t-attf-class="{{!selection_mode ? 'oe_kanban_color_' + kanban_getcolor(record.color.raw_value) : ''}} oe_kanban_card oe_kanban_global_click">
+                            <div class="oe_kanban_content">
+                                <div class="o_kanban_record_top">
+                                    <div class="o_kanban_record_headings">
+                                        <strong class="o_kanban_record_title">
+                                            <field name="name"/>
+                                        </strong>
+                                        <span invisible="context.get('default_plm_id', False) or context.get('fsm_mode', False)">
+                                            <br/>
+                                            <field name="plm_id" required="1"/>
+                                        </span>
+                                        <br />
+
+                                    </div>
+                                    <div class="o_dropdown_kanban dropdown" t-if="!selection_mode" groups="base.group_user">
+                                        <a role="button" class="dropdown-toggle o-no-caret btn" data-toggle="dropdown" data-display="static" href="#" aria-label="Dropdown menu" title="Dropdown menu">
+                                            <span class="fa fa-ellipsis-v"/>
+                                        </a>
+                                        <div class="dropdown-menu" role="menu">
+
+                                            <a t-if="widget.editable" role="menuitem" type="edit" class="dropdown-item">Edit</a>
+                                            <a t-if="widget.editable" role="menuitem" class="dropdown-item" name="toggle_active" type="object">
+                                                <t t-if="record.active.raw_value">Archive</t>
+                                                <t t-if="!record.active.raw_value">Restore</t>
+                                            </a>
+                                            <a t-if="widget.deletable" role="menuitem" type="delete" class="dropdown-item">Delete</a>
+                                            <div role="separator" class="dropdown-divider"></div>
+                                            <ul class="oe_kanban_colorpicker" data-field="color"/>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="o_kanban_record_body">
+                                    <field name="tag_ids" widget="many2many_tags" options="{'color_field': 'color'}" invisible="context.get('fsm_mode', False)"/>
+
+                                </div>
+                                <div class="o_kanban_record_bottom" t-if="!selection_mode">
+                                    <div class="oe_kanban_bottom_left">
+                                        <field name="priority" widget="priority"/>
+                                    </div>
+
+                                </div>
+                            </div>
+                            <div class="oe_clear"></div>
+                        </div>
+                    </t>
+                </templates>
+            </kanban>
+        </field>
+    </record>
+    <!--Plm Task Tree View-->
+    <record id="view_task_tree2" model="ir.ui.view">
+        <field name="name">mrp.plm.task.tree</field>
+        <field name="model">mrp.plm.task</field>
+        <field eval="2" name="priority"/>
+        <field name="arch" type="xml">
+            <tree string="Tasks" multi_edit="1" sample="1">
+                <field name="active" invisible="1" />
+                <field name="is_closed" invisible="1" />
+                <field name="sequence" invisible="1" readonly="1"/>
+                <field name="name"/>
+                <field name="plm_id" optional="show" readonly="1"/>
+                <field name="tag_ids" widget="many2many_tags" options="{'color_field': 'color'}" optional="show"/>
+                <field name="kanban_state" widget="state_selection" optional="hide" readonly="1"/>
+                <field name="stage_id" invisible="context.get('set_visible',False)" optional="show" readonly="1"/>
+            </tree>
+        </field>
+    </record>
+
+    <record id="mrp_plm_view_form_simplified" model="ir.ui.view">
+        <field name="name">mrp.plm.view.form.simplified</field>
+        <field name="model">mrp.plm</field>
+        <field name="arch" type="xml">
+            <form string="Plm">
+                <group>
+                    <field name="name" class="o_project_name oe_inline" string="Project Name" placeholder="e.g. Office Party"/>
+                    <!-- <field name="user_id" invisible="1"/> -->
+                </group>
+            </form>
+        </field>
+    </record>
+
+    <record id="mrp_plm_view_form_simplified_footer" model="ir.ui.view">
+        <field name="name">mrp.plm.view.form.simplified</field>
+        <field name="model">mrp.plm</field>
+        <field name="inherit_id" ref="weOdooErpPlm.mrp_plm_view_form_simplified"/>
+        <field name="mode">primary</field>
+        <field name="arch" type="xml">
+            <xpath expr="//group" position="after">
+                <footer>
+                    <button string="Create" name="action_view_tasks" type="object" class="btn-primary o_open_tasks"/>
+                    <button string="Discard" class="btn-secondary" special="cancel"/>
+                </footer>
+            </xpath>
+        </field>
+    </record>
+
+    <record id="open_create_plm" model="ir.actions.act_window">
+        <field name="name">Create a PLM</field>
+        <field name="res_model">mrp.plm</field>
+        <field name="view_mode">form</field>
+        <field name="view_id" ref="weOdooErpPlm.mrp_plm_view_form_simplified_footer"/>
+        <field name="target">new</field>
+    </record>
+
+    <record model="ir.ui.view" id="view_project_kanban">
+        <field name="name">mrp.plm.kanban</field>
+        <field name="model">mrp.plm</field>
+        <field name="arch" type="xml">
+            <kanban class="oe_background_grey o_kanban_dashboard o_project_kanban o_emphasize_colors" on_create="weOdooErpPlm.open_create_plm" sample="1">
+                <field name="name"/>
+                <field name="color"/>
+                <field name="task_count"/>
+                <field name="label_tasks"/>
+                <templates>
+                    <t t-name="kanban-box">
+                        <div t-attf-class="#{kanban_color(record.color.raw_value)} oe_kanban_global_click o_has_icon">
+                            <div class="o_project_kanban_main">
+                                <div class="o_kanban_card_content">
+                                    <div class="o_kanban_primary_left">
+                                        <div class="o_primary">
+                                            <span>
+                                                <t t-esc="record.name.value"/>
+                                            </span>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="o_kanban_card_manage_pane dropdown-menu" groups="weOdooErpPlm.group_mrp_plm_user" role="menu">
+                                    <div class="o_kanban_card_manage_section o_kanban_manage_reports">
+                                        <div role="menuitem">
+                                            <a type="edit">Edit</a>
+                                        </div>
+                                    </div>
+                                    <div role="menuitem" aria-haspopup="true" class="o_no_padding_kanban_colorpicker">
+                                        <ul class="oe_kanban_colorpicker" data-field="color" role="popup"/>
+                                    </div>
+                                </div>
+                                <a class="o_kanban_manage_toggle_button o_left" href="#" groups="weOdooErpPlm.group_mrp_plm_user">
+                                    <i class="fa fa-ellipsis-v" role="img" aria-label="Manage" title="Manage"/>
+                                </a>
+                            </div>
+                            <div class="o_project_kanban_boxes">
+                                <a class="o_project_kanban_box" name="action_view_tasks" type="object">
+                                    <div>
+                                        <span class="o_value">
+                                            <t t-esc="record.task_count.value"/>
+                                        </span>
+                                        <span class="o_label">
+                                            <t t-esc="record.label_tasks.value"/>
+                                        </span>
+                                    </div>
+                                </a>
+                            </div>
+                        </div>
+                    </t>
+                </templates>
+            </kanban>
+        </field>
+    </record>
+
+
+</odoo>

@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data >
+        <record id="sequence_mrp_plm_eco_stage" model="ir.sequence">
+            <field name="name">Mrp Plm Eco Stage Sequence</field>
+            <field name="code">mrp.plm.eco.stage</field>
+            <field name="number_next">1</field>
+            <field name="number_increment">1</field>
+            <field name="company_id"></field>
+        </record>
+
+        <record id="sequence_mrp_plm_eco_type" model="ir.sequence">
+            <field name="name">Mrp Plm Eco Type Sequence</field>
+            <field name="code">mrp.plm.eco.type</field>
+            <field name="number_next">1</field>
+            <field name="number_increment">1</field>
+            <field name="company_id"></field>
+        </record>
+        <record id="sequence_mrp_plm_eco_approval_template" model="ir.sequence">
+            <field name="name">Mrp Plm Eco Approval template Sequence</field>
+            <field name="code">mrp.plm.eco.approval.template</field>
+            <field name="number_next">1</field>
+            <field name="number_increment">1</field>
+            <field name="company_id"></field>
+        </record>
+        <record id="sequence_mrp_plm_eco_approval" model="ir.sequence">
+            <field name="name">Mrp Plm Eco Approval Sequence</field>
+            <field name="code">mrp.plm.eco.approval</field>
+            <field name="number_next">1</field>
+            <field name="number_increment">1</field>
+            <field name="company_id"></field>
+        </record>
+        <record id="sequence_mrp_plm_eco" model="ir.sequence">
+            <field name="name">Mrp Plm Eco Sequence</field>
+            <field name="code">mrp.plm.eco</field>
+            <field name="number_next">1</field>
+            <field name="number_increment">1</field>
+            <field name="prefix" >ECO</field>
+            <field name="padding">5</field>
+            <field name="company_id"></field>
+        </record>
+    </data>
+</odoo>

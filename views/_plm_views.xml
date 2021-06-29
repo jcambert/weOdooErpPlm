@@ -1,0 +1,424 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!--PLM VIEWS-->
+    <record id="mrp_plm_form_view" model="ir.ui.view">
+        <field name="name">mrp.plm.form.view</field>
+        <field name="model">mrp.plm</field>
+        <field name="arch" type="xml">
+            <form string="Lifecycle" delete="0">
+                <header></header>
+                <sheet string="Lifecycle">
+                    <widget name="web_ribbon" title="Archived" bg_color="bg-danger" attrs="{'invisible': [('active', '=', True)]}"/>
+                    <div class="oe_title">
+                        <h1>
+                            <field name="name" placeholder="Project Name"/>
+                        </h1>
+
+                    </div>
+                    <notebook>
+                        <page name="description_page" string="Description">
+                            <field name="description" nolabel="1" placeholder="Describe your lifecycle..." type="html"/>
+                            <div class="d-none oe_clear"/>
+                        </page>
+                        <page name="settings" string="Settings">
+                            <group>
+                                <group>
+                                    <field name="active" invisible="1"/>
+                                    <field name="type_id" widget="many2one"/>
+                                </group>
+                            </group>
+                        </page>
+                    </notebook>
+                </sheet>
+            </form>
+        </field>
+    </record>
+    <record id="mrp_plm_kanban_view" model="ir.ui.view">
+        <field name="name">mrp.plm.kanban.view</field>
+        <field name="model">mrp.plm</field>
+        <field name="arch" type="xml">
+            <kanban class="oe_background_grey o_kanban_dashboard o_plm_kanban o_emphasize_colors" on_create="weOdooErpPlm.open_create_plm" sample="1">
+                <field name="name"/>
+                <field name="color"/>
+                <field name="active" />
+                <templates>
+                    <t t-name="kanban-box">
+                        <div t-attf-class="#{kanban_color(record.color.raw_value)} oe_plm_kanban_global_click o_has_icon">
+                            <a class="o_project_kanban_box" name="action_view_tasks" type="object"></a>
+
+                            <div class="oe_kanban_content">
+                                <div class="o_kanban_record_top">
+                                    <div class="o_kanban_record_headings">
+                                        <strong class="o_kanban_record_title">
+                                            <field name="name"/>
+                                        </strong>
+                                    </div>
+                                    <div class="o_dropdown_kanban dropdown" groups="base.group_user">
+                                        <a role="button" class="dropdown-toggle o-no-caret btn" data-toggle="dropdown" data-display="static" href="#" aria-label="Dropdown menu" title="Dropdown menu">
+                                            <span class="fa fa-ellipsis-v"/>
+                                        </a>
+                                        <div class="dropdown-menu" role="menu">
+                                            <a role="menuitem" type="edit" class="dropdown-item">Edit</a>
+                                            <a role="menuitem" class="dropdown-item" name="toggle_active" type="object">
+                                                <t t-if="record.active.raw_value">Archive</t>
+                                                <t t-if="!record.active.raw_value">Restore</t>
+                                            </a>
+                                            <a t-if="widget.deletable" role="menuitem" type="delete" class="dropdown-item">Delete</a>
+                                            <div role="separator" class="dropdown-divider"></div>
+                                            <ul class="oe_kanban_colorpicker" data-field="color"/>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="o_project_kanban_boxes">
+                                <a class="o_project_kanban_box" name="action_view_tasks" type="object" style="background:green;">
+                                    <div>
+                                        <span class="o_value">1</span>
+                                        <span class="o_label">5</span>
+                                    </div>
+                                </a>
+                            </div>
+                            <div class="oe_clear"></div>
+                            <!-- <div class="o_project_kanban_main">
+                                <div class="o_kanban_card_content">
+                                    <div class="o_kanban_primary_left">
+                                        <div class="o_primary">
+                                            <span>
+                                                <t t-esc="record.name.value"/>
+                                            </span>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="o_kanban_card_manage_pane dropdown-menu" role="menu">
+                                    <div class="o_kanban_card_manage_section o_kanban_manage_reports">
+
+                                        <div role="menuitem">
+                                            <a type="edit">Edit</a>
+                                        </div>
+                                    </div>
+                                    <div role="menuitem" aria-haspopup="true" class="o_no_padding_kanban_colorpicker">
+                                        <ul class="oe_kanban_colorpicker" data-field="color" role="popup"/>
+                                    </div>
+                                </div>
+
+                            </div> -->
+                        </div>
+                    </t>
+                </templates>
+            </kanban>
+        </field>
+    </record>
+    <record id="mrp_plm_tree_view" model="ir.ui.view">
+        <field name="name">mrp.plm.tree.view</field>
+        <field name="model">mrp.plm</field>
+        <field name="arch" type="xml">
+            <tree decoration-muted="active == False" string="Lifecycles" delete="0" multi_edit="1" sample="1">
+                <field name="sequence" optional="show" widget="handle"/>
+                <field name="active" invisible="1"/>
+                <field name="name" string="Name" class="font-weight-bold"/>
+                <field name="type_id" widget="many2one"/>
+            </tree>
+        </field>
+    </record>
+    <record id="mrp_plm_form_view_simplified" model="ir.ui.view">
+        <field name="name">mrp.plm.form.view.simplified</field>
+        <field name="model">mrp.plm</field>
+        <field name="arch" type="xml">
+            <form string="Lifecycle">
+                <group>
+                    <field name="user_id" invisible="1"/>
+                    <field name="name" class="o_project_name oe_inline" string="Lifecycle Name" placeholder="e.g. Office Party"/>
+                    <field name="type_id" widget="many2one"/>
+                </group>
+            </form>
+        </field>
+    </record>
+    <record id="mrp_plm_form_quick_create_view" model="ir.ui.view">
+        <field name="name">mrp.plm.form.view.simplified</field>
+        <field name="model">mrp.plm</field>
+        <field name="inherit_id" ref="weOdooErpPlm.mrp_plm_form_view_simplified"/>
+        <field name="mode">primary</field>
+        <field name="arch" type="xml">
+            <xpath expr="//group" position="after">
+                <footer>
+                    <button string="Create" name="action_view_tasks" type="object" class="btn-primary o_open_tasks"/>
+                    <button string="Discard" class="btn-secondary" special="cancel"/>
+                </footer>
+            </xpath>
+        </field>
+    </record>
+
+    <!-- PLM Type VIEWS-->
+    <record id="mrp_plm_type_form_view" model="ir.ui.view">
+        <field name="name">mrp.plm.type.form.view</field>
+        <field name="model">mrp.plm.type</field>
+        <field name="arch" type="xml">
+            <form string="Plm Type">
+                <header></header>
+                <sheet string="Type">
+                    <widget name="web_ribbon" title="Archived" bg_color="bg-danger" attrs="{'invisible': [('active', '=', True)]}"/>
+                    <div class="oe_title">
+                        <h1>
+                            <field name="name" placeholder="Type Name"/>
+                        </h1>
+                    </div>
+                    <group>
+                        <group>
+                            <field name="active" invisible="1"/>
+                            <field name="description" />
+                        </group>
+                        <group>
+                            <field name="plm_ids" widget="one2many" />
+                            <field name="stage_type_ids" widget="many2many_tags"/>
+                        </group>
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+    <record id="mrp_plm_type_kanban_view" model="ir.ui.view">
+        <field name="name">mrp_plm_type_kanban_view</field>
+        <field name="model">mrp.plm.type</field>
+        <field name="arch" type="xml">
+            <kanban>
+                <templates>
+                    <t t-name="kanban-box">
+                        <div>
+                            <div class="oe_kanban_content">
+                                <div class="o_kanban_record_top">
+                                    <div class="o_kanban_record_headings">
+                                        <strong class="o_kanban_record_title">
+                                            <field name="name"/>
+                                        </strong>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </t>
+                </templates>
+            </kanban>
+        </field>
+    </record>
+    <record id="mrp_plm_type_tree_view" model="ir.ui.view">
+        <field name="name">mrp_plm_type_tree_view</field>
+        <field name="model">mrp.plm.type</field>
+        <field name="arch" type="xml">
+            <tree>
+                <field name="sequence" widget="handle"/>
+                <field name="name" />
+                <field name="plm_ids" widget="one2many" />
+                <field name="stage_type_ids" widget="many2many_tags"/>
+            </tree>
+        </field>
+    </record>
+
+    <!-- PLM STAGE VIEWS -->
+    <record id="mrp_plm_stage_kanban_view" model="ir.ui.view">
+        <field name="name">mrp.plm.stage.kanban.view</field>
+        <field name="model">mrp.plm.stage</field>
+        <field name="arch" type="xml">
+            <kanban default_group_by="stage_tmpl_id" class="oe_background_grey o_kanban_dashboard o_project_kanban o_emphasize_colors" create="0" quick_create="0" group_create="0" sample="1">
+                <field name="sequence"/>
+                <field name="color"/>
+                <field name="priority"/>
+                <field name="stage_tmpl_id" options='{"group_by_tooltip": {"description": "Description"}}'/>
+                <progressbar field="kanban_state" colors='{"done": "success", "blocked": "danger", "normal": "muted"}'/>
+                <templates>
+                    <t t-name="kanban-box">
+                        <div>
+                            <div class="oe_kanban_content">
+                                <div class="o_kanban_record_top">
+                                    <div class="o_kanban_record_headings">
+                                        <strong class="o_kanban_record_title">
+                                            <field name="name"/>
+                                        </strong>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </t>
+                </templates>
+            </kanban>
+        </field>
+    </record>
+
+    <!--PLM STAGE TYPE VIEWS-->
+    <record id="mrp_plm_stage_template_form_view" model="ir.ui.view">
+        <field name="name">mrp_plm_stage_template_form_view</field>
+        <field name="model">mrp.plm.stage.template</field>
+        <field name="arch" type="xml">
+            <form string="Stage Type" delete="0">
+                <field name="active" invisible="1" />
+                <sheet>
+                    <widget name="web_ribbon" title="Archived" bg_color="bg-danger" attrs="{'invisible': [('active', '=', True)]}" />
+                    <group>
+                        <group>
+                            <field name="name"/>
+                        </group>
+                        <group>
+                            <field name="fold"/>
+                            <field name="closing" />
+                            <!-- <field name="plm_ids" widget="many2many_tags" /> -->
+                            <field name="sequence" />
+                            <field name="type_ids" widget="many2many_tags"/>
+                        </group>
+                    </group>
+                    <group string="Stage Description and Tooltips">
+                        <p class="text-muted" colspan="2">
+                                At each stage employees can block or make task/issue ready for next stage.
+                                You can define here labels that will be displayed for the state instead
+                                of the default labels.
+                        </p>
+                        <label for="legend_normal" string=" " class="o_status oe_project_kanban_legend" title="Task in progress. Click to block or set as done." aria-label="Task in progress. Click to block or set as done." role="img"/>
+                        <field name="legend_normal" nolabel="1"/>
+                        <label for="legend_blocked" string=" " class="o_status o_status_red oe_project_kanban_legend" title="Task is blocked. Click to unblock or set as done." aria-label="Task is blocked. Click to unblock or set as done." role="img"/>
+                        <field name="legend_blocked" nolabel="1"/>
+                        <label for="legend_done" string=" " class="o_status o_status_green oe_project_kanban_legend" title="This step is done. Click to block or set in progress." aria-label="This step is done. Click to block or set in progress." role="img"/>
+                        <field name="legend_done" nolabel="1"/>
+
+                        <p class="text-muted" colspan="2">
+                                You can also add a description to help your coworkers understand the meaning and purpose of the stage.
+                        </p>
+                        <field name="description" placeholder="Add a description..." nolabel="1" colspan="2"/>
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+    <record id="mrp_plm_stage_template_tree_view" model="ir.ui.view">
+        <field name="name">mrp.plm.stage.template.tree.view</field>
+        <field name="model">mrp.plm.stage.template</field>
+        <field name="arch" type="xml">
+            <tree string="Task Stage" delete="0" sample="1">
+                <field name="sequence" widget="handle" optional="show"/>
+                <field name="name"/>
+                <field name="fold" optional="show"/>
+                <field name="closing" optional="show"/>
+                <field name="description" optional="hide"/>
+                <field name="type_ids" widget="many2many_tags"/>
+                <!-- <field name="plm_ids" optional="show" widget="many2many_tags" options="{'color_field': 'color'}" /> -->
+            </tree>
+        </field>
+    </record>
+    <record id="mrp_plm_stage_template_kanban_view" model="ir.ui.view">
+        <field name="name">mrp.plm.stage.template.kanban.view</field>
+        <field name="model">mrp.plm.stage.template</field>
+        <field name="arch" type="xml">
+            <kanban class="o_kanban_mobile" sample="1">
+                <field name="name"/>
+                <field name="fold"/>
+                <field name="closing"/>
+                <field name="description"/>
+                <templates>
+                    <t t-name="kanban-box">
+                        <div t-attf-class="oe_kanban_global_click">
+                            <div class="row">
+                                <div class="col-12">
+                                    <strong>
+                                        <t t-esc="record.name.value"/>
+                                    </strong>
+                                </div>
+                            </div>
+                            <t t-if="record.description.value">
+                                <hr class="mt8 mb8"/>
+                                <t t-esc="record.description.value"/>
+                            </t>
+                        </div>
+                    </t>
+                </templates>
+            </kanban>
+        </field>
+    </record>
+
+    <!-- ACTIONS PLM-->
+    <record id="open_create_plm" model="ir.actions.act_window">
+        <field name="name">Create a Lifecycle</field>
+        <field name="res_model">mrp.plm</field>
+        <field name="view_mode">form</field>
+        <field name="view_id" ref="mrp_plm_form_quick_create_view"/>
+        <field name="target">new</field>
+    </record>
+    <record id="open_view_plm_all" model="ir.actions.act_window">
+        <field name="name">Lifecycles</field>
+        <field name="res_model">mrp.plm</field>
+        <field name="view_mode">kanban,form</field>
+        <field name="domain">[]</field>
+        <field name="context">{}</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                    No lifecycle found. Let's create one!
+            </p>
+            <p>
+                    Lifecycle regroup tasks on the same topic and each have their own dashboard.
+            </p>
+        </field>
+    </record>
+    <!-- ACTION TYPE-->
+    <record id="open_type_tree" model="ir.actions.act_window">
+        <field name="name">Plm Type</field>
+        <field name="res_model">mrp.plm.type</field>
+        <field name="view_mode">tree,kanban,form</field>
+        <field name="view_id" ref="mrp_plm_type_tree_view"/>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                Create a new plm type in the task pipeline
+            </p>
+            <p>
+                Define the steps that will be used in the project from the
+                creation of the task, up to the closing of the task or issue.
+                You will use these stages in order to track the progress in
+                solving a task or an issue.
+            </p>
+        </field>
+    </record>
+    <!--ACTION STAGE-->
+    <record id="open_mrp_plm_2_mrp_plm_stage_all" model="ir.actions.act_window">
+        <field name="name">Stages</field>
+        <field name="res_model">mrp.plm.stage</field>
+        <!-- <field name="view_mode">kanban,tree,form,calendar,pivot,graph,activity</field> -->
+        <field name="view_mode">kanban</field>
+        <field name="domain">[('plm_id', '=', active_id)]</field>
+        <field name="context">{
+                'pivot_row_groupby': ['user_id'],
+                'default_project_id': active_id,
+            }</field>
+        <!-- <field name="search_view_id" ref="view_task_search_form"/> -->
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                    No stages found. Let's create one!
+            </p>
+            <p>
+                    To get things done, use activities and status on stages.<br/>
+                    Chat in real time or by email to collaborate efficiently.
+            </p>
+        </field>
+    </record>
+    <!--ACTION STAGE TYPE-->
+    <record id="open_stage_template_form" model="ir.actions.act_window">
+        <field name="name">Stages Type</field>
+        <field name="res_model">mrp.plm.stage.template</field>
+        <field name="view_mode">tree,kanban,form</field>
+        <field name="view_id" ref="mrp_plm_stage_template_tree_view"/>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                Create a new stage type in the task pipeline
+            </p>
+            <p>
+                Define the steps that will be used in the project from the
+                creation of the task, up to the closing of the task or issue.
+                You will use these stages in order to track the progress in
+                solving a task or an issue.
+            </p>
+        </field>
+    </record>
+    <!-- Top menu item -->
+    <menuitem name="Lifecycle" id="menu_main_mrp_pml" groups="group_mrp_plm_user" web_icon="project,static/description/icon.png" sequence="60"/>
+    <!--Config Menu-->
+    <menuitem id="menu_project_config" name="Configuration" parent="menu_main_mrp_pml" sequence="100" />
+    <menuitem id="menu_project_config_project" name="Stages Type" action="open_stage_template_form" parent="menu_project_config" sequence="3"/>
+    <!-- Child menu items-->
+    <menuitem action="open_view_plm_all" id="menu_plms" name="Lifecycles" parent="menu_main_mrp_pml" sequence="1"/>
+    <menuitem id="menu_open_type" name="Plm Type" action="open_type_tree" parent="menu_main_mrp_pml" sequence="2"/>
+    <menuitem id="menu_open_task_type" name="Stages Type" action="open_stage_template_form" parent="menu_main_mrp_pml" sequence="3"/>
+</odoo>
