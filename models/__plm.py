@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
-from odoo.exceptions import UserError
+from io import SEEK_CUR
+from odoo.exceptions import UserError, ValidationError
 from odoo import models, fields, api, _, SUPERUSER_ID
 from .models import INNER_MODELS, Model
 DEFAULT_ECO_ID = 'default_eco_id'
@@ -84,9 +85,9 @@ class Eco(Model):
         domain="[ ('type_id', '=', type_id)]"
         )
     state=fields.Selection(
-        [('draft','Draft'),('confirmed','Confirmed'),('done','Done'),('rejected','Rejected')],
+        [('new','New'), ('draft','Draft'),('confirmed','Confirmed'),('done','Done'),('rejected','Rejected')],
         string='State',
-        default='draft',
+        default='new',
         copy=False,required=True,help="Statut",tracking=True,store=True
         )
     tag_ids = fields.Many2many(INNER_MODELS['eco.tag'] , 'mrp_plm_eco_tags_rel', 'plm_id', 'tag_id', string='Tags')
@@ -98,11 +99,39 @@ class Eco(Model):
     user_id=fields.Many2one(INNER_MODELS['res.users'],'Responsible',help="User responsible", default=lambda self: self.env.user, tracking=True)
 
     @api.model
-    def create(self, vals):
-        if 'state' in vals and vals['state']=='draft':
-            vals['state']='confirmed'
-        return super(Eco,self).create(vals)
+    def default_get(self, fields):
+        vals = super(Eco, self).default_get(fields)
+        return vals
 
+
+    @api.model
+    def create(self, vals):
+        if 'state' in vals and vals['state']=='new':
+            vals['state']='draft'
+            # vals['kanban_state']='done'
+        res= super(Eco,self).create(vals)
+        if res and 'stage_id' in vals:
+            self.createApprovals(res.id, vals['stage_id'])
+            self.flush()
+        return res
+
+    
+    def write(self,vals):
+        
+            
+        res = super(Eco,self).write(vals)
+        return res
+
+    @api.model
+    def createApprovals(self,eco_id,stage_id):
+        stage=self._eco_stage.browse(stage_id)
+        if stage.exists():
+            for t in stage.approval_template_ids:
+                self._eco_approval.create({
+                'approval_template_id':t.id,
+                'eco_id':eco_id,
+                'template_stage_id':stage.id
+                })
     @api.model
     def default_get(self, default_fields):
         vals = super(Eco, self).default_get(default_fields)
@@ -112,10 +141,8 @@ class Eco(Model):
     @api.depends('type_id')
     def _compute_stage_id(self):
         for eco in self:
-            if eco.plm_id:
-                eco.stage_id = eco.stage_find(eco.id, [('fold', '=', False), ('final_stage', '=', False)])
-            else:
-                eco.stage_id = False
+            eco.stage_id = eco.stage_find(eco.id, [('fold', '=', False), ('final_stage', '=', False)])
+            
 
     def _compute_mrp_document_count(self):
         for record in self:
@@ -126,32 +153,76 @@ class Eco(Model):
             self.allow_apply_change,self.allow_change_stage=True,True
 
     
-    @api.depends('state','stage_id','approval_ids')
+    @api.depends('state','stage_id','approval_ids','approval_ids.status')
     def _compute_user_can_approve(self):
         for record in self:
-            self.user_can_reject=True
-            if record.state not in ('draft','done','rejected'):
-                record.user_can_approve=record.approval_ids.filtered(lambda r:self.env.user.id in r.required_user_ids).search_count([])
+            if record.state not in ('new','draft','done','rejected'):
+                
+                record.user_can_approve=record.approval_ids.user_can_approve()
+                record.user_can_reject=record.approval_ids.user_can_reject()
             else:
                 record.user_can_approve=False
+                record.user_can_reject=False
+            if record.approval_ids.need_approvals():
+                record.kanban_state='normal'
+            elif record.approval_ids.has_rejected():
+                record.kanban_state='blocked'
+            else:
+                record.kanban_state='done'
+    @api.onchange('stage_id')
+    def on_stage_change(self):
+        def restore(record):
+            record.stage_id=record._origin.stage_id
+        self.ensure_one()
+        if  self.state=='new':
+            return
+
+        if self.state=='draft':
+            restore(self)
+            raise UserError("You must start revision berrfore changing state")
+            
+        #Approve if needed
+        if self._origin.user_can_approve:
+            self._origin.approve()
+        else:
+            raise UserError("You are not able to approve this stage")
+        #if another approval needed, raise error=> cannot change stage
+        self._origin.flush()
+        if self._origin.approval_ids.need_approvals():
+            restore(self)
+            raise UserError("Another approval is needed")
+
+        #create new approvals if needed    
+        self.createApprovals(self._origin.id,self.stage_id.id)
 
     def action_new_revision(self):
         self.ensure_one()
-        if self.state=='confirmed':
-            domain=[('type_id.id','=',self.type_id.id),('sequence','>',self.stage_id.sequence)]
-            domain=[('type_id.id','=',self.type_id.id)]
-            nextStage=self._eco_stage.search(domain)
-            if nextStage.exists():
-                for stage in nextStage:
-                    print('stage seq:%s' % stage.sequence)
-                self.stage_id=nextStage
+        if self.state=='draft':
+            self.state='confirmed'
     def apply_rebase(self):
         pass
     def conflict_resolve(self):
         pass
+    
     def approve(self):
-        pass
+        self.ensure_one()
+        if not self.user_can_approve:
+            return
+        r=self.approval_ids.approve()
+        self.flush()
+        if self.stage_id.final_stage:
+            self.state='done'
+            # self.kanban_state='blocked'
+        
     def reject(self):
+        self.ensure_one()
+        if not self.user_can_reject:
+            return
+        r=self.approval_ids.reject()
+        self.flush()
+        if self.stage_id.final_stage:
+            self.state='rejected'
+            # self.kanban_state='blocked'
         pass
     def action_apply(self):
         pass
@@ -203,6 +274,7 @@ class EcoApprovalTemplate(Model):
     _name=INNER_MODELS['eco.approval.template']
     _description='Eco Approval Template'
     _inherit=['sequence.mixin']
+    _order="sequence,id"
     approval_type=fields.Selection([
         ('selection','Selection'),
         ('mandatory','Mandatory'),
@@ -215,34 +287,71 @@ class EcoApproval(Model):
     _name=INNER_MODELS['eco.approval']
     _description='Eco Approval'
     _inherits = {INNER_MODELS['eco.approval.template']: 'approval_template_id'}
-
+    _order="sequence desc,id"
     approval_date=fields.Datetime('Approval date')
     approval_template_id=fields.Many2one(INNER_MODELS['eco.approval.template'] ,ondelete='cascade',required=True,string="Approval template",help="Approval template")
     eco_id=fields.Many2one(INNER_MODELS['eco'] ,'Technical Change',ondelete='cascade',required=True,help="Technical ECO")
-    eco_stage_id=fields.Many2one(INNER_MODELS['eco.stage'],string="ECO Stage",help="ECO Stage")
-    is_approved=fields.Boolean("Is approved",compute='_compute_is_approved',readonly=True)
-    is_closed=fields.Boolean("Is closed",compute='_compute_is_closed',store=True,readonly=True)
-    is_rejected=fields.Boolean("Is rejected",compute='_compute_is_rejected',store=True,readonly=True)
-    name=fields.Char('Role',required=True)
-    required_user_ids=fields.Many2many(INNER_MODELS['res.users'],string="Utilisateurs requis")
+    eco_stage_id=fields.Many2one(related="eco_id.stage_id",string="ECO Stage",store=True,help="ECO Stage")
+    is_approved=fields.Boolean("Is approved",compute='_compute_status',store=True,readonly=True)
+    is_rejected=fields.Boolean("Is rejected",compute='_compute_status',store=True,readonly=True)
+    is_closed=fields.Boolean("Is closed",compute='_compute_status',store=True,readonly=True)
+    
+    required_user_ids=fields.Many2many(INNER_MODELS['res.users'],string="Utilisateurs requis",compute='_compute_required_users')
     status=fields.Selection([
         ('none','not yet'),
         ('comment','Comment'),
         ('approved','Approved'),
-        ('rejected','Rejected')],'Statut',required=True)
+        ('rejected','Rejected')],'Statut',default='none',required=True)
     template_stage_id=fields.Many2one(INNER_MODELS['eco.stage'],string='Validation stage')
     user_id=fields.Many2one(INNER_MODELS['res.users'],'Approuvé par')
 
-    def _compute_is_approved(self):
-        for record in self:
-            self.is_approved=True
-    def _compute_is_closed(self):
-        for record in self:
-            self.is_closed=True
-    def _compute_is_rejected(self):
-        for record in self:
-            self.is_rejected=True
+    @api.model
+    @api.returns('bool')
+    def has_rejected(self):
+        return len(self.filtered(lambda r:r.is_rejected))>0
 
+    @api.model
+    @api.returns('bool')
+    def user_can_approve(self):
+        r=self.filtered(lambda r:(not r.is_approved) and (not r.is_closed)  and (self.env.user.id in r.required_user_ids.mapped('id') or self.env.is_superuser()) and (r.template_stage_id==r.eco_stage_id))
+        return len(r)>0
+    @api.model
+    def approve(self):
+        for record in self.filtered(lambda r:(not r.is_approved) and (not r.is_closed)  and (self.env.user.id in r.required_user_ids.mapped('id') or self.env.is_superuser()) and (r.template_stage_id==r.eco_stage_id)):
+            record.user_id=self.env.user.id
+            record.approval_date=fields.Date.today()
+            record.status='approved'
+        self.flush()
+    @api.model            
+    @api.returns('bool')
+    def user_can_reject(self):
+        r=self.filtered(lambda r:(not r.is_rejected) and (not r.is_closed)  and (self.env.user.id in r.required_user_ids.mapped('id') or self.env.is_superuser()) and (r.template_stage_id==r.eco_stage_id))
+        return len(r)>0
+    @api.model
+    def reject(self):
+        for record in self:
+            record.user_id=self.env.user.id
+            record.approval_date=fields.Date.today()
+            record.status='rejected'
+
+    @api.model
+    @api.returns('bool')
+    def need_approvals(self):
+        return len(self.filtered(lambda r: not r.is_closed))>0
+
+    @api.depends('status','required_user_ids')
+    def _compute_status(self):
+        for record in self:
+            record.is_rejected=record.status=='rejected'
+            record.is_approved=record.status=='approved'
+            record.is_closed=record.is_rejected or record.is_approved or len(record.required_user_ids)==0
+
+    @api.depends('user_ids')
+    def _compute_required_users(self):
+        for record in self:
+            if record.approval_type=='mandatory':
+                ids=record.user_ids.mapped('id')
+                record.required_user_ids=[(6,0,ids)]
 class EcoType(Model):
     _name = INNER_MODELS['eco.type']
     _description = 'Eco Type'
@@ -325,6 +434,11 @@ class EcoStage(Model):
         
         return [(stage.id,  stage.name  ) for stage in self]
 
+    @api.constrains('approval_template_ids','final_stage')
+    def check_approval_template_ids_final_stage(self):
+        for record in self:
+            if record.final_stage and len(record.approval_template_ids)>0:
+                raise ValidationError("A final stage cannot have approvals")
 class EcoTag(Model):
     _name = INNER_MODELS['eco.tag']
     _description = 'Eco Tag'

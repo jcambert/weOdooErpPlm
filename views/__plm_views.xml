@@ -194,23 +194,25 @@
                 <field name="user_can_approve" invisible="1"/>
                 <field name="user_can_reject" invisible="1"/>
                 <field name="allow_apply_change" invisible="1"/>
+                <field name="kanban_state"  invisible="1"/>
                 <header>
-                    <field name="stage_id" widget="statusbar" options="{'clickable': '1'}" attrs="{'invisible': [('active', '=', False)]}"/>
-                    <button string="Start New Revision" name="action_new_revision" type="object" class="oe_highlight" attrs="{'invisible': [('state', '!=', 'confirmed')]}"/>
+                    <field name="state" widget="statusbar" options="{'clickable':0}"/>
+                    <field name="stage_id" widget="statusbar" clickable="1" attrs="{'invisible': ['|',('active', '=', False),('state','!=','confirmed')]}"/>
+                    <button string="Start New Revision" name="action_new_revision" type="object" class="oe_highlight" attrs="{'invisible': ['|',('active','=',False),('state', '!=', 'draft')]}"/>
                     <button string="Apply Rebase" name="apply_rebase" help="Rebase new revision of BoM with previous eco bom and old bom changes." type="object" class="oe_highlight" attrs="{'invisible': [('state', '!=', 'rebase')]}"/>
                     <button string="Conflict Resolved" name="conflict_resolve" type="object" class="oe_highlight" attrs="{'invisible': [('state', '!=', 'conflict')]}" confirm="System will automatically resolved the conflict(s) and apply changes. Do you agree?"/>
-                    <button string="Approve" name="approve" type="object" class="oe_highlight" attrs="{'invisible': [('user_can_approve', '=', False)]}"/>
-                    <button string="Reject" name="reject" type="object" class="oe_highlight" attrs="{'invisible': [('user_can_reject', '=', False)]}"/>
-                    <button string="Apply Changes" name="action_apply" type="object" class="oe_highlight" attrs="{'invisible': [('allow_apply_change', '=', False)]}"/>
-                    <button name="action_see_attachments" type="object" attrs="{'invisible': ['|', ('state', '=', 'confirmed'), ('type', '=', 'routing')]}" string="Update Documents"/>
-                    <button name="open_new_bom" type="object" attrs="{'invisible': ['|', ('new_bom_id', '=', False), ('state', '=', 'done')]}" string="Update BoM"/>
+                    <button string="Approve" name="approve" type="object" class="oe_highlight" attrs="{'invisible': ['|',('user_can_approve', '=', False),('state','!=','confirmed')]}"/>
+                    <button string="Reject" name="reject" type="object" class="oe_highlight" attrs="{'invisible': ['|',('user_can_reject', '=', False),('state','!=','confirmed')]}"/>
+                    <button string="Apply Changes" name="action_apply" type="object" class="oe_highlight" attrs="{'invisible': ['|',('allow_apply_change', '=', False),('state','!=','confirmed')]}"/>
+                    <button name="action_see_attachments" type="object" attrs="{'invisible': ['|', ('state', 'in',('new', 'confirmed')), ('type', '=', 'routing')]}" string="Update Documents"/>
+                    <button name="open_new_bom" type="object" attrs="{'invisible': ['|', ('new_bom_id', '=', False), ('state', 'in',('new', 'done'))]}" string="Update BoM"/>
                 </header>
                 <sheet>
                     <div class="oe_button_box" name="button_box">
-                        <button class="oe_stat_button" name="action_see_attachments" type="object" icon="fa-file-text-o" attrs="{'invisible': ['|', ('state', '=', 'confirmed'), ('type', '=', 'routing')]}">
+                        <button class="oe_stat_button" name="action_see_attachments" type="object" icon="fa-file-text-o" attrs="{'invisible': ['|', ('state', 'in', ('new','confirmed')), ('type', '=', 'routing')]}">
                             <field string="Documents" name="mrp_document_count" widget="statinfo"/>
                         </button>
-                        <button name="open_new_bom" icon="fa-flask" type="object" attrs="{'invisible': [('new_bom_id', '=', False)]}" class="oe_stat_button">
+                        <button name="open_new_bom" icon="fa-flask" type="object" attrs="{'invisible': ['|',('state','=','new'),('new_bom_id', '=', False)]}" class="oe_stat_button">
                             <div class="o_field_widget o_stat_info mr4">
                                 <div>
                                     <span>BOM</span>
@@ -222,10 +224,13 @@
                         </button>
                     </div>
                     <widget name="web_ribbon" title="Archived" bg_color="bg-danger" attrs="{'invisible': [('active', '=', True)]}"/>
-                    <field name="kanban_state" widget="state_selection"/>
+                    <!-- <field name="kanban_state" widget="state_selection"/> -->
+                    <span attrs="{'invisible':[('kanban_state','!=','normal')]}" class="o_status o_status_grey" title="Waiting for Approvals" role="img" aria-label="Waiting for Approvals"/>
+                    <span attrs="{'invisible':[('kanban_state','!=','done')]}" class="o_status o_status_green" title="All Approvals have be done" role="img" aria-label="All Approvals have be done"/>
+                    <span attrs="{'invisible':[('kanban_state','!=','blocked')]}" class="o_status o_status_red" title="Someone rejected this change" role="img" aria-label="Someone rejected this change"/>
                     <div class="oe_title">
                         <h1>
-                            <field name="sequence" readonly="1" />
+                            <field name="sequence" readonly="1" attrs="{'invisible':[('state','=','new')]}"/>
                         </h1>
                         <label for="name" string="Short Summary" class="oe_edit_only"/>
                         <h2>
@@ -235,10 +240,10 @@
                     <group>
                         <group>
                             <field name="active" invisible="1"/>
-                            <field name="type_id" widget="selection" attrs="{'readonly': [('state', '!=', 'draft')]}"/>
-                            <field name="type" widget="radio" attrs="{'readonly': [('state', '!=', 'draft')]}"/>
-                            <field name="product_tmpl_id" domain="[('type', 'in', ['consu', 'product'])]" attrs="{'readonly': [('state', '!=', 'draft')], 'invisible': [('type', '=', 'routing')], 'required': [('type', 'in', ('bom', 'both', 'product'))]}"/>
-                            <field name="bom_id" context="{'default_product_tmpl_id': product_tmpl_id}" attrs="{'readonly': [('state', '!=', 'draft')], 'invisible': [('type', 'in', ('routing', 'product'))], 'required': [('type', 'in', ('bom', 'both'))]}"/>
+                            <field name="type_id" widget="selection" attrs="{'readonly': [('state', 'not in', ('new','draft'))]}"/>
+                            <field name="type" widget="radio" attrs="{'readonly': [('state', 'not in', ('new','draft'))]}"/>
+                            <field name="product_tmpl_id" domain="[('type', 'in', ['consu', 'product'])]" attrs="{'readonly': [('state', 'not in', ('new','draft'))], 'invisible': [('type', '=', 'routing')], 'required': [('type', 'in', ('bom', 'both', 'product'))]}"/>
+                            <field name="bom_id" context="{'default_product_tmpl_id': product_tmpl_id}" attrs="{'readonly': [('state', 'not in', ('new','draft'))], 'invisible': [('type', 'in', ('routing', 'product'))], 'required': [('type', 'in', ('bom', 'both'))]}"/>
                             <field name="new_bom_id" invisible="1"/>
                             <field name="company_id" groups="base.group_multi_company"/>
                         </group>
@@ -290,7 +295,7 @@
                                 </tree>
                             </field>
                         </page>
-                        <page string="Routing Changes" name="routing_changes" attrs="{'invisible': [('state', '=', 'confirmed')]}" help="Changes made on the routing.">
+                        <page string="Routing Changes" name="routing_changes" attrs="{'invisible': [('state', 'in', ('new','draft','confirmed'))]}" help="Changes made on the routing.">
                             <field name="routing_change_ids">
                                 <tree decoration-danger="change_type=='remove'" decoration-info="change_type=='add'">
                                     <field name="change_type"/>
@@ -299,9 +304,10 @@
                                 </tree>
                             </field>
                         </page>
-                        <page string="Approvals" name="approvals">
+                        <page string="Approvals" name="approvals" attrs="{'invisible':[('state','in',('new','draft'))]}">
                             <field name="approval_ids" nolabel="1" readonly="1" help="Define the approval roles on the ECO stages.">
                                 <tree decoration-danger="template_stage_id == eco_stage_id and status == 'rejected' and not is_closed" decoration-info="template_stage_id == eco_stage_id and status == 'none' and not is_closed" decoration-success="template_stage_id == eco_stage_id and status in ('approved', 'commented') and not is_closed" decoration-muted="template_stage_id != eco_stage_id">
+                                    <field name="sequence" />
                                     <field name="name"/>
                                     <field name="user_id"/>
                                     <field name="status"/>
@@ -520,8 +526,8 @@
                             <field name="final_stage"/>
                         </group>
                     </group>
-                    <h2>Approvals</h2>
-                    <field name="approval_template_ids">
+                    <h2 attrs="{'invisible':[('final_stage','=',True)]}">Approvals</h2>
+                    <field name="approval_template_ids" attrs="{'invisible':[('final_stage','=',True)]}">
                         <tree editable="bottom">
                             <field name="sequence" widget="handle"/>
                             <field name="name" placeholder="e.g. Engineering Department"/>
